@@ -6,7 +6,7 @@ EquiSplit stores users, friendships, groups, shared expenses, calculated expense
 
 Common conventions:
 
-- Primary keys use `UUID`.
+- Primary keys use `BIGINT`.
 - Timestamps use `TIMESTAMPTZ`.
 - Money values use `NUMERIC(12,2)`.
 - Status/type columns use constrained `VARCHAR` values.
@@ -21,7 +21,7 @@ Stores registered application users.
 
 | Column | Data Type | Constraints |
 | --- | --- | --- |
-| `id` | `UUID` | Primary key |
+| `id` | `BIGINT` | Primary key |
 | `name` | `VARCHAR(120)` | Not null |
 | `email` | `VARCHAR(255)` | Not null, unique |
 | `password_hash` | `VARCHAR(255)` | Not null |
@@ -53,9 +53,9 @@ Stores friend relationships between two users.
 
 | Column | Data Type | Constraints |
 | --- | --- | --- |
-| `id` | `UUID` | Primary key |
-| `requester_id` | `UUID` | Not null, foreign key to `users(id)` |
-| `addressee_id` | `UUID` | Not null, foreign key to `users(id)` |
+| `id` | `BIGINT` | Primary key |
+| `requester_id` | `BIGINT` | Not null, foreign key to `users(id)` |
+| `addressee_id` | `BIGINT` | Not null, foreign key to `users(id)` |
 | `status` | `VARCHAR(20)` | Not null |
 | `requested_at` | `TIMESTAMPTZ` | Not null, default `NOW()` |
 | `responded_at` | `TIMESTAMPTZ` | Nullable |
@@ -90,10 +90,10 @@ Stores expense-sharing groups.
 
 | Column | Data Type | Constraints |
 | --- | --- | --- |
-| `id` | `UUID` | Primary key |
+| `id` | `BIGINT` | Primary key |
 | `name` | `VARCHAR(150)` | Not null |
 | `description` | `TEXT` | Nullable |
-| `created_by` | `UUID` | Not null, foreign key to `users(id)` |
+| `created_by` | `BIGINT` | Not null, foreign key to `users(id)` |
 | `default_currency` | `CHAR(3)` | Not null, default `'USD'` |
 | `image_url` | `TEXT` | Nullable |
 | `is_archived` | `BOOLEAN` | Not null, default `FALSE` |
@@ -126,9 +126,9 @@ Stores membership of users inside groups.
 
 | Column | Data Type | Constraints |
 | --- | --- | --- |
-| `id` | `UUID` | Primary key |
-| `group_id` | `UUID` | Not null, foreign key to `groups(id)` |
-| `user_id` | `UUID` | Not null, foreign key to `users(id)` |
+| `id` | `BIGINT` | Primary key |
+| `group_id` | `BIGINT` | Not null, foreign key to `groups(id)` |
+| `user_id` | `BIGINT` | Not null, foreign key to `users(id)` |
 | `role` | `VARCHAR(20)` | Not null, default `'MEMBER'` |
 | `joined_at` | `TIMESTAMPTZ` | Not null, default `NOW()` |
 | `left_at` | `TIMESTAMPTZ` | Nullable |
@@ -162,10 +162,10 @@ Stores expenses paid by a user and optionally associated with a group.
 
 | Column | Data Type | Constraints |
 | --- | --- | --- |
-| `id` | `UUID` | Primary key |
-| `group_id` | `UUID` | Nullable, foreign key to `groups(id)` |
-| `paid_by` | `UUID` | Not null, foreign key to `users(id)` |
-| `created_by` | `UUID` | Not null, foreign key to `users(id)` |
+| `id` | `BIGINT` | Primary key |
+| `group_id` | `BIGINT` | Nullable, foreign key to `groups(id)` |
+| `paid_by` | `BIGINT` | Not null, foreign key to `users(id)` |
+| `created_by` | `BIGINT` | Not null, foreign key to `users(id)` |
 | `title` | `VARCHAR(180)` | Not null |
 | `description` | `TEXT` | Nullable |
 | `amount` | `NUMERIC(12,2)` | Not null |
@@ -209,9 +209,9 @@ Stores each participant's owed share for an expense.
 
 | Column | Data Type | Constraints |
 | --- | --- | --- |
-| `id` | `UUID` | Primary key |
-| `expense_id` | `UUID` | Not null, foreign key to `expenses(id)` |
-| `user_id` | `UUID` | Not null, foreign key to `users(id)` |
+| `id` | `BIGINT` | Primary key |
+| `expense_id` | `BIGINT` | Not null, foreign key to `expenses(id)` |
+| `user_id` | `BIGINT` | Not null, foreign key to `users(id)` |
 | `owed_amount` | `NUMERIC(12,2)` | Not null |
 | `paid_share` | `NUMERIC(12,2)` | Not null, default `0.00` |
 | `percentage` | `NUMERIC(5,2)` | Nullable |
@@ -251,16 +251,16 @@ Stores payments made between users to settle balances.
 
 | Column | Data Type | Constraints |
 | --- | --- | --- |
-| `id` | `UUID` | Primary key |
-| `group_id` | `UUID` | Nullable, foreign key to `groups(id)` |
-| `payer_id` | `UUID` | Not null, foreign key to `users(id)` |
-| `payee_id` | `UUID` | Not null, foreign key to `users(id)` |
+| `id` | `BIGINT` | Primary key |
+| `group_id` | `BIGINT` | Nullable, foreign key to `groups(id)` |
+| `payer_id` | `BIGINT` | Not null, foreign key to `users(id)` |
+| `payee_id` | `BIGINT` | Not null, foreign key to `users(id)` |
 | `amount` | `NUMERIC(12,2)` | Not null |
 | `currency` | `CHAR(3)` | Not null |
 | `status` | `VARCHAR(20)` | Not null |
 | `settled_at` | `TIMESTAMPTZ` | Nullable |
 | `note` | `TEXT` | Nullable |
-| `created_by` | `UUID` | Not null, foreign key to `users(id)` |
+| `created_by` | `BIGINT` | Not null, foreign key to `users(id)` |
 | `created_at` | `TIMESTAMPTZ` | Not null, default `NOW()` |
 | `updated_at` | `TIMESTAMPTZ` | Not null, default `NOW()` |
 
@@ -297,11 +297,11 @@ Stores audit and activity feed events.
 
 | Column | Data Type | Constraints |
 | --- | --- | --- |
-| `id` | `UUID` | Primary key |
-| `actor_id` | `UUID` | Nullable, foreign key to `users(id)` |
-| `group_id` | `UUID` | Nullable, foreign key to `groups(id)` |
+| `id` | `BIGINT` | Primary key |
+| `actor_id` | `BIGINT` | Nullable, foreign key to `users(id)` |
+| `group_id` | `BIGINT` | Nullable, foreign key to `groups(id)` |
 | `entity_type` | `VARCHAR(40)` | Not null |
-| `entity_id` | `UUID` | Nullable |
+| `entity_id` | `BIGINT` | Nullable |
 | `activity_type` | `VARCHAR(60)` | Not null |
 | `message` | `TEXT` | Not null |
 | `metadata` | `JSONB` | Not null, default `'{}'::jsonb` |
