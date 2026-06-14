@@ -23,7 +23,7 @@ CREATE TABLE users (
 
     profile_image_url TEXT,
 
-    default_currency CHAR(3),
+    default_currency VARCHAR(3),
 
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
 

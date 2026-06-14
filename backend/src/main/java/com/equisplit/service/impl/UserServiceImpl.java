@@ -5,6 +5,8 @@ import com.equisplit.entity.User;
 import com.equisplit.repository.UserRepository;
 import com.equisplit.service.UserService;
 import lombok.RequiredArgsConstructor;
+
+import java.time.OffsetDateTime;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +24,15 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Email already registered");
         }
 
+        
+
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .isActive(true)
+                .createdAt(OffsetDateTime.now())
+                .updatedAt(OffsetDateTime.now())
                 .build();
 
         return userRepository.save(user);
