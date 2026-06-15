@@ -75,6 +75,8 @@ CREATE TABLE groups (
 
     name VARCHAR(150) NOT NULL,
 
+    description TEXT,
+
     created_by BIGINT NOT NULL,
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -97,6 +99,8 @@ CREATE TABLE group_members (
     group_id BIGINT NOT NULL,
 
     user_id BIGINT NOT NULL,
+
+    role VARCHAR(20) NOT NULL DEFAULT 'MEMBER',
 
     joined_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
