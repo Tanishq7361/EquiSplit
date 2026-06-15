@@ -2,14 +2,13 @@ package com.equisplit.service.impl;
 
 import com.equisplit.dto.request.LoginRequest;
 import com.equisplit.dto.request.RegisterRequest;
+import com.equisplit.dto.response.LoginResponse;
 import com.equisplit.entity.User;
 import com.equisplit.repository.UserRepository;
 import com.equisplit.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.OffsetDateTime;
 
@@ -40,15 +39,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+            throw new RuntimeException("Invalid email or password");
         }
 
-        return user;
+        return LoginResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
     }
 
     @Override

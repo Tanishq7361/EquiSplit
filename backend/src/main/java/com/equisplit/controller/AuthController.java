@@ -38,14 +38,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        User user = userService.login(request);
-
-        LoginResponse response = LoginResponse.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.login(request));
     }
 }
