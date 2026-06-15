@@ -12,6 +12,7 @@ import com.equisplit.repository.GroupRepository;
 import com.equisplit.repository.UserRepository;
 import com.equisplit.service.GroupService;
 import lombok.RequiredArgsConstructor;
+import com.equisplit.dto.request.AddMemberRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -72,5 +73,46 @@ public class GroupServiceImpl implements GroupService {
                         .description(member.getGroup().getDescription())
                         .build())
                 .toList();
+    }
+
+    @Override
+    public void addMember(
+            Long groupId,
+            AddMemberRequest request,
+            String userEmail) {
+
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        GroupMember ownerMembership =
+                groupMemberRepository.findByGroupAndUser(group, currentUser)
+                        .orElseThrow(() -> new RuntimeException("You are not a member of this group"));
+
+        if (ownerMembership.getRole() != GroupRole.OWNER) {
+            throw new RuntimeException("Only owner can add members");
+        }
+
+        User userToAdd = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User to add not found"));
+
+        boolean alreadyMember =
+                groupMemberRepository.findByGroupAndUser(group, userToAdd)
+                        .isPresent();
+
+        if (alreadyMember) {
+            throw new RuntimeException("User already in group");
+        }
+
+        GroupMember newMember = GroupMember.builder()
+                .group(group)
+                .user(userToAdd)
+                .role(GroupRole.MEMBER)
+                .joinedAt(OffsetDateTime.now())
+                .build();
+
+        groupMemberRepository.save(newMember);
     }
 }
