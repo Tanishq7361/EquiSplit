@@ -22,3 +22,7 @@ spring:
 
 server:
   port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:equisplit-development-secret-key-change-before-production-123456789}
+  expiration: 86400000

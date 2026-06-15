@@ -5,6 +5,7 @@ import com.equisplit.dto.request.RegisterRequest;
 import com.equisplit.dto.response.LoginResponse;
 import com.equisplit.entity.User;
 import com.equisplit.repository.UserRepository;
+import com.equisplit.security.JwtService;
 import com.equisplit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Override
     public User register(RegisterRequest request) {
@@ -47,10 +49,10 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Invalid email or password");
         }
 
+        String token = jwtService.generateToken(user.getEmail());
+
         return LoginResponse.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
+                .token(token)
                 .build();
     }
 
