@@ -4,6 +4,7 @@ import com.equisplit.dto.request.CreateExpenseRequest;
 import com.equisplit.dto.response.ExpenseResponse;
 import com.equisplit.entity.Expense;
 import com.equisplit.entity.Group;
+import com.equisplit.entity.GroupMember;
 import com.equisplit.entity.User;
 import com.equisplit.repository.ExpenseRepository;
 import com.equisplit.repository.GroupMemberRepository;
@@ -12,13 +13,15 @@ import com.equisplit.repository.UserRepository;
 import com.equisplit.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import com.equisplit.entity.ExpenseSplit;
+import com.equisplit.repository.ExpenseSplitRepository;
 import java.time.OffsetDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class ExpenseServiceImpl implements ExpenseService {
 
+    private final ExpenseSplitRepository expenseSplitRepository;
     private final ExpenseRepository expenseRepository;
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
@@ -52,6 +55,28 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .build();
 
         Expense savedExpense = expenseRepository.save(expense);
+
+        var members = groupMemberRepository.findByGroup(group);
+
+        int memberCount = members.size();
+
+        var equalShare = request.getAmount()
+                .divide(
+                        java.math.BigDecimal.valueOf(memberCount),
+                        2,
+                        java.math.RoundingMode.HALF_UP
+                );
+
+        for (GroupMember member : members) {
+
+            ExpenseSplit split = ExpenseSplit.builder()
+                    .expense(savedExpense)
+                    .user(member.getUser())
+                    .shareAmount(equalShare)
+                    .build();
+
+            expenseSplitRepository.save(split);
+        }
 
         return ExpenseResponse.builder()
                 .id(savedExpense.getId())
