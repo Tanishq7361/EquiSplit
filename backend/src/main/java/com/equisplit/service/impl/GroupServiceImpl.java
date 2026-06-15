@@ -1,5 +1,6 @@
 package com.equisplit.service.impl;
-
+import com.equisplit.dto.response.GroupSummaryResponse;
+import java.util.List;
 import com.equisplit.dto.request.CreateGroupRequest;
 import com.equisplit.dto.response.GroupResponse;
 import com.equisplit.entity.Group;
@@ -55,5 +56,21 @@ public class GroupServiceImpl implements GroupService {
                 .name(savedGroup.getName())
                 .description(savedGroup.getDescription())
                 .build();
+    }
+
+    @Override
+    public List<GroupSummaryResponse> getMyGroups(String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return groupMemberRepository.findByUser(user)
+                .stream()
+                .map(member -> GroupSummaryResponse.builder()
+                        .id(member.getGroup().getId())
+                        .name(member.getGroup().getName())
+                        .description(member.getGroup().getDescription())
+                        .build())
+                .toList();
     }
 }

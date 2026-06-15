@@ -1,5 +1,8 @@
 package com.equisplit.controller;
 
+import com.equisplit.dto.response.GroupSummaryResponse;
+import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
 import com.equisplit.dto.request.CreateGroupRequest;
 import com.equisplit.dto.response.GroupResponse;
 import com.equisplit.service.GroupService;
@@ -25,6 +28,14 @@ public class GroupController {
 
         return ResponseEntity.ok(
                 groupService.createGroup(request, email)
+        );
+    }
+    @GetMapping
+    public ResponseEntity<List<GroupSummaryResponse>> getMyGroups(
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                groupService.getMyGroups(authentication.getName())
         );
     }
 }
