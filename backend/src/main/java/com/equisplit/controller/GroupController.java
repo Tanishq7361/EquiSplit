@@ -2,7 +2,7 @@ package com.equisplit.controller;
 
 import com.equisplit.dto.response.GroupSummaryResponse;
 import java.util.List;
-
+import com.equisplit.dto.response.GroupDetailsResponse;
 import com.equisplit.dto.request.CreateGroupRequest;
 import com.equisplit.dto.response.GroupResponse;
 import com.equisplit.service.GroupService;
@@ -53,5 +53,18 @@ public class GroupController {
         );
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{groupId}")
+    public ResponseEntity<GroupDetailsResponse> getGroupDetails(
+            @PathVariable Long groupId,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                groupService.getGroupDetails(
+                        groupId,
+                        authentication.getName()
+                )
+        );
     }
 }

@@ -14,6 +14,8 @@ import com.equisplit.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import com.equisplit.dto.request.AddMemberRequest;
 import org.springframework.stereotype.Service;
+import com.equisplit.dto.response.GroupDetailsResponse;
+import com.equisplit.dto.response.GroupMemberResponse;
 
 import java.time.OffsetDateTime;
 
@@ -114,5 +116,37 @@ public class GroupServiceImpl implements GroupService {
                 .build();
 
         groupMemberRepository.save(newMember);
+    }
+
+    @Override
+    public GroupDetailsResponse getGroupDetails(
+            Long groupId,
+            String userEmail) {
+
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        groupMemberRepository.findByGroupAndUser(group, currentUser)
+                .orElseThrow(() -> new RuntimeException("You are not a member of this group"));
+
+        List<GroupMemberResponse> members =
+                groupMemberRepository.findByGroup(group)
+                        .stream()
+                        .map(member -> GroupMemberResponse.builder()
+                                .id(member.getUser().getId())
+                                .name(member.getUser().getName())
+                                .role(member.getRole().name())
+                                .build())
+                        .toList();
+
+        return GroupDetailsResponse.builder()
+                .id(group.getId())
+                .name(group.getName())
+                .description(group.getDescription())
+                .members(members)
+                .build();
     }
 }
