@@ -18,11 +18,14 @@ import com.equisplit.repository.ExpenseSplitRepository;
 import java.time.OffsetDateTime;
 import com.equisplit.dto.response.BalanceResponse;
 import java.util.List;
+import com.equisplit.entity.Settlement;
+import com.equisplit.repository.SettlementRepository;
 
 @Service
 @RequiredArgsConstructor
 public class ExpenseServiceImpl implements ExpenseService {
-
+        
+    private final SettlementRepository settlementRepository;
     private final ExpenseSplitRepository expenseSplitRepository;
     private final ExpenseRepository expenseRepository;
     private final GroupRepository groupRepository;
@@ -108,6 +111,8 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         var expenses = expenseRepository.findByGroup(group);
 
+        var settlements = settlementRepository.findByGroup(group);
+
         return members.stream()
                 .map(member -> {
 
@@ -135,7 +140,30 @@ public class ExpenseServiceImpl implements ExpenseService {
                                                 java.math.BigDecimal::add
                                         );
 
-                        java.math.BigDecimal balance = paid.subtract(owes);
+                        java.math.BigDecimal sentSettlements =
+                                settlements.stream()
+                                        .filter(settlement ->
+                                                settlement.getPayer().getId().equals(memberUser.getId()))
+                                        .map(Settlement::getAmount)
+                                        .reduce(
+                                                java.math.BigDecimal.ZERO,
+                                                java.math.BigDecimal::add
+                                        );
+
+                        java.math.BigDecimal receivedSettlements =
+                                settlements.stream()
+                                        .filter(settlement ->
+                                                settlement.getReceiver().getId().equals(memberUser.getId()))
+                                        .map(Settlement::getAmount)
+                                        .reduce(
+                                                java.math.BigDecimal.ZERO,
+                                                java.math.BigDecimal::add
+                                        );
+
+                        java.math.BigDecimal balance = paid
+                                .subtract(owes)
+                                .add(sentSettlements)
+                                .subtract(receivedSettlements);
 
                         return BalanceResponse.builder()
                                 .userName(memberUser.getName())
