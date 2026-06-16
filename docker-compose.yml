@@ -3,12 +3,15 @@ services:
     image: postgres:16-alpine
     container_name: equisplit-postgres
     restart: unless-stopped
+
     environment:
       POSTGRES_DB: equisplit
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+
     ports:
       - "5432:5432"
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -16,10 +19,28 @@ services:
     image: redis:7-alpine
     container_name: equisplit-redis
     restart: unless-stopped
+
     ports:
       - "6379:6379"
+
     volumes:
       - redis_data:/data
+
+  backend:
+    build:
+      context: ./backend
+
+    container_name: equisplit-backend
+
+    depends_on:
+      - postgres
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      JWT_SECRET: equisplit-development-secret-key-change-before-production-123456789
+
+    ports:
+      - "8080:8080"
 
 volumes:
   postgres_data:
