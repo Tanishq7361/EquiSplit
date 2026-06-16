@@ -6,6 +6,8 @@ import com.equisplit.entity.Expense;
 import com.equisplit.entity.Group;
 import com.equisplit.entity.GroupMember;
 import com.equisplit.entity.User;
+import com.equisplit.exception.ResourceNotFoundException;
+import com.equisplit.exception.UnauthorizedActionException;
 import com.equisplit.repository.ExpenseRepository;
 import com.equisplit.repository.GroupMemberRepository;
 import com.equisplit.repository.GroupRepository;
@@ -40,15 +42,15 @@ public class ExpenseServiceImpl implements ExpenseService {
             String userEmail) {
 
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         
         groupMemberRepository.findByGroupAndUser(group, user)
             .orElseThrow(() ->
-                    new RuntimeException("You are not a member of this group"));
+                    new UnauthorizedActionException("You are not a member of this group"));
 
         Expense expense = Expense.builder()
                 .group(group)
@@ -99,14 +101,14 @@ public class ExpenseServiceImpl implements ExpenseService {
                 String userEmail) {
 
         User currentUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         groupMemberRepository.findByGroupAndUser(group, currentUser)
                 .orElseThrow(() ->
-                        new RuntimeException("You are not a member of this group"));
+                        new UnauthorizedActionException("You are not a member of this group"));
 
         var members = groupMemberRepository.findByGroup(group);
 
@@ -182,14 +184,14 @@ public class ExpenseServiceImpl implements ExpenseService {
                 String userEmail) {
 
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         groupMemberRepository.findByGroupAndUser(group, user)
                 .orElseThrow(() ->
-                        new RuntimeException("You are not a member of this group"));
+                        new UnauthorizedActionException("You are not a member of this group"));
 
         return expenseRepository.findByGroup(group)
                 .stream()

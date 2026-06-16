@@ -4,6 +4,7 @@ import com.equisplit.dto.request.LoginRequest;
 import com.equisplit.dto.request.RegisterRequest;
 import com.equisplit.dto.response.LoginResponse;
 import com.equisplit.entity.User;
+import com.equisplit.exception.UnauthorizedActionException;
 import com.equisplit.repository.UserRepository;
 import com.equisplit.security.JwtService;
 import com.equisplit.service.UserService;
@@ -25,7 +26,7 @@ public class UserServiceImpl implements UserService {
     public User register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new UnauthorizedActionException("Email already registered");
         }
 
         User user = User.builder()
@@ -43,10 +44,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new UnauthorizedActionException("Invalid email or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new UnauthorizedActionException("Invalid email or password");
         }
 
         String token = jwtService.generateToken(user.getEmail());

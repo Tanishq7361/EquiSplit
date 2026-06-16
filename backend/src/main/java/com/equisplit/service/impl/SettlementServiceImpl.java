@@ -5,6 +5,8 @@ import com.equisplit.dto.response.SettlementResponse;
 import com.equisplit.entity.Group;
 import com.equisplit.entity.Settlement;
 import com.equisplit.entity.User;
+import com.equisplit.exception.ResourceNotFoundException;
+import com.equisplit.exception.UnauthorizedActionException;
 import com.equisplit.repository.GroupMemberRepository;
 import com.equisplit.repository.GroupRepository;
 import com.equisplit.repository.SettlementRepository;
@@ -32,21 +34,21 @@ public class SettlementServiceImpl implements SettlementService {
             String userEmail) {
 
         User payer = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         groupMemberRepository.findByGroupAndUser(group, payer)
                 .orElseThrow(() ->
-                        new RuntimeException("You are not a member of this group"));
+                        new UnauthorizedActionException("You are not a member of this group"));
 
         User receiver = userRepository.findByEmail(request.getReceiverEmail())
-                .orElseThrow(() -> new RuntimeException("Receiver not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Receiver not found"));
 
         groupMemberRepository.findByGroupAndUser(group, receiver)
                 .orElseThrow(() ->
-                        new RuntimeException("Receiver is not a member of this group"));
+                        new UnauthorizedActionException("Receiver is not a member of this group"));
 
         Settlement settlement = Settlement.builder()
                 .group(group)
@@ -72,14 +74,14 @@ public class SettlementServiceImpl implements SettlementService {
                 String userEmail) {
 
         User currentUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         groupMemberRepository.findByGroupAndUser(group, currentUser)
                 .orElseThrow(() ->
-                        new RuntimeException("You are not a member of this group"));
+                        new UnauthorizedActionException("You are not a member of this group"));
 
         return settlementRepository.findByGroup(group)
                 .stream()

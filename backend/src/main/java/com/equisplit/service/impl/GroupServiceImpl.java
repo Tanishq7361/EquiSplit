@@ -7,6 +7,8 @@ import com.equisplit.entity.Group;
 import com.equisplit.entity.GroupMember;
 import com.equisplit.entity.GroupRole;
 import com.equisplit.entity.User;
+import com.equisplit.exception.ResourceNotFoundException;
+import com.equisplit.exception.UnauthorizedActionException;
 import com.equisplit.repository.GroupMemberRepository;
 import com.equisplit.repository.GroupRepository;
 import com.equisplit.repository.UserRepository;
@@ -33,7 +35,7 @@ public class GroupServiceImpl implements GroupService {
             String userEmail) {
 
         User creator = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Group group = Group.builder()
                 .name(request.getName())
@@ -65,7 +67,7 @@ public class GroupServiceImpl implements GroupService {
     public List<GroupSummaryResponse> getMyGroups(String userEmail) {
 
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return groupMemberRepository.findByUser(user)
                 .stream()
@@ -84,28 +86,28 @@ public class GroupServiceImpl implements GroupService {
             String userEmail) {
 
         User currentUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         GroupMember ownerMembership =
                 groupMemberRepository.findByGroupAndUser(group, currentUser)
-                        .orElseThrow(() -> new RuntimeException("You are not a member of this group"));
+                        .orElseThrow(() -> new UnauthorizedActionException("You are not a member of this group"));
 
         if (ownerMembership.getRole() != GroupRole.OWNER) {
-            throw new RuntimeException("Only owner can add members");
+            throw new UnauthorizedActionException("Only owner can add members");
         }
 
         User userToAdd = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User to add not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User to add not found"));
 
         boolean alreadyMember =
                 groupMemberRepository.findByGroupAndUser(group, userToAdd)
                         .isPresent();
 
         if (alreadyMember) {
-            throw new RuntimeException("User already in group");
+            throw new UnauthorizedActionException("User already in group");
         }
 
         GroupMember newMember = GroupMember.builder()
@@ -124,13 +126,13 @@ public class GroupServiceImpl implements GroupService {
             String userEmail) {
 
         User currentUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         groupMemberRepository.findByGroupAndUser(group, currentUser)
-                .orElseThrow(() -> new RuntimeException("You are not a member of this group"));
+                .orElseThrow(() -> new UnauthorizedActionException("You are not a member of this group"));
 
         List<GroupMemberResponse> members =
                 groupMemberRepository.findByGroup(group)
@@ -156,14 +158,14 @@ public class GroupServiceImpl implements GroupService {
                 String userEmail) {
 
         User currentUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         groupMemberRepository.findByGroupAndUser(group, currentUser)
                 .orElseThrow(() ->
-                        new RuntimeException("You are not a member of this group"));
+                        new UnauthorizedActionException("You are not a member of this group"));
 
         return groupMemberRepository.findByGroup(group)
                 .stream()
