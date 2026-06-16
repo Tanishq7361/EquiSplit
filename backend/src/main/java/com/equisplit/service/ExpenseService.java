@@ -2,6 +2,8 @@ package com.equisplit.service;
 
 import com.equisplit.dto.request.CreateExpenseRequest;
 import com.equisplit.dto.response.ExpenseResponse;
+import com.equisplit.dto.response.BalanceResponse;
+import java.util.List;
 
 public interface ExpenseService {
 
@@ -9,5 +11,10 @@ public interface ExpenseService {
             Long groupId,
             CreateExpenseRequest request,
             String userEmail
+    );
+
+    List<BalanceResponse> getGroupBalances(
+        Long groupId,
+        String userEmail
     );
 }

@@ -1,6 +1,8 @@
 package com.equisplit.controller;
 
 import com.equisplit.dto.request.CreateExpenseRequest;
+import com.equisplit.dto.response.BalanceResponse;
+import java.util.List;
 import com.equisplit.dto.response.ExpenseResponse;
 import com.equisplit.service.ExpenseService;
 import jakarta.validation.Valid;
@@ -30,4 +32,17 @@ public class ExpenseController {
                 )
         );
     }
+
+    @GetMapping("/balances")
+        public ResponseEntity<List<BalanceResponse>> getBalances(
+                @PathVariable Long groupId,
+                Authentication authentication) {
+
+        return ResponseEntity.ok(
+                expenseService.getGroupBalances(
+                        groupId,
+                        authentication.getName()
+                )
+        );
+        }
 }

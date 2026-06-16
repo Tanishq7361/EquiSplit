@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import com.equisplit.entity.ExpenseSplit;
 import com.equisplit.repository.ExpenseSplitRepository;
 import java.time.OffsetDateTime;
+import com.equisplit.dto.response.BalanceResponse;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -86,4 +88,62 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .paidBy(user.getName())
                 .build();
     }
+
+    @Override
+        public List<BalanceResponse> getGroupBalances(
+                Long groupId,
+                String userEmail) {
+
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        groupMemberRepository.findByGroupAndUser(group, currentUser)
+                .orElseThrow(() ->
+                        new RuntimeException("You are not a member of this group"));
+
+        var members = groupMemberRepository.findByGroup(group);
+
+        var expenses = expenseRepository.findByGroup(group);
+
+        return members.stream()
+                .map(member -> {
+
+                        User memberUser = member.getUser();
+
+                        java.math.BigDecimal paid =
+                                expenses.stream()
+                                        .filter(expense ->
+                                                expense.getPaidBy().getId().equals(memberUser.getId()))
+                                        .map(Expense::getAmount)
+                                        .reduce(
+                                                java.math.BigDecimal.ZERO,
+                                                java.math.BigDecimal::add
+                                        );
+
+                        java.math.BigDecimal owes =
+                                expenses.stream()
+                                        .flatMap(expense ->
+                                                expenseSplitRepository.findByExpense(expense).stream())
+                                        .filter(split ->
+                                                split.getUser().getId().equals(memberUser.getId()))
+                                        .map(split -> split.getShareAmount())
+                                        .reduce(
+                                                java.math.BigDecimal.ZERO,
+                                                java.math.BigDecimal::add
+                                        );
+
+                        java.math.BigDecimal balance = paid.subtract(owes);
+
+                        return BalanceResponse.builder()
+                                .userName(memberUser.getName())
+                                .paid(paid)
+                                .owes(owes)
+                                .balance(balance)
+                                .build();
+                })
+                .toList();
+        }
 }
