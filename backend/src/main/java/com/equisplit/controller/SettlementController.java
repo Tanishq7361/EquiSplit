@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.equisplit.dto.response.SettlementSummaryResponse;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/groups/{groupId}/settlements")
@@ -30,4 +32,17 @@ public class SettlementController {
                 )
         );
     }
+
+    @GetMapping
+        public ResponseEntity<List<SettlementSummaryResponse>> getGroupSettlements(
+                @PathVariable Long groupId,
+                Authentication authentication) {
+
+        return ResponseEntity.ok(
+                settlementService.getGroupSettlements(
+                        groupId,
+                        authentication.getName()
+                )
+        );
+        }
 }

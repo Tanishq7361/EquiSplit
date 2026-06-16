@@ -12,7 +12,8 @@ import com.equisplit.repository.UserRepository;
 import com.equisplit.service.SettlementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import com.equisplit.dto.response.SettlementSummaryResponse;
+import java.util.List;
 import java.time.OffsetDateTime;
 
 @Service
@@ -64,4 +65,30 @@ public class SettlementServiceImpl implements SettlementService {
                 .amount(savedSettlement.getAmount())
                 .build();
     }
+
+    @Override
+        public List<SettlementSummaryResponse> getGroupSettlements(
+                Long groupId,
+                String userEmail) {
+
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        groupMemberRepository.findByGroupAndUser(group, currentUser)
+                .orElseThrow(() ->
+                        new RuntimeException("You are not a member of this group"));
+
+        return settlementRepository.findByGroup(group)
+                .stream()
+                .map(settlement -> SettlementSummaryResponse.builder()
+                        .id(settlement.getId())
+                        .payerName(settlement.getPayer().getName())
+                        .receiverName(settlement.getReceiver().getName())
+                        .amount(settlement.getAmount())
+                        .build())
+                .toList();
+        }
 }
