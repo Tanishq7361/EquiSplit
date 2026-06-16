@@ -149,4 +149,30 @@ public class GroupServiceImpl implements GroupService {
                 .members(members)
                 .build();
     }
+
+    @Override
+        public List<GroupMemberResponse> getGroupMembers(
+                Long groupId,
+                String userEmail) {
+
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        groupMemberRepository.findByGroupAndUser(group, currentUser)
+                .orElseThrow(() ->
+                        new RuntimeException("You are not a member of this group"));
+
+        return groupMemberRepository.findByGroup(group)
+                .stream()
+                .map(member -> GroupMemberResponse.builder()
+                        .id(member.getUser().getId())
+                        .name(member.getUser().getName())
+                        .email(member.getUser().getEmail())
+                        .role(member.getRole().name())
+                        .build())
+                .toList();
+        }
 }

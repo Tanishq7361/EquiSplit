@@ -4,6 +4,7 @@ import com.equisplit.dto.response.GroupSummaryResponse;
 import java.util.List;
 import com.equisplit.dto.response.GroupDetailsResponse;
 import com.equisplit.dto.request.CreateGroupRequest;
+import com.equisplit.dto.response.GroupMemberResponse;
 import com.equisplit.dto.response.GroupResponse;
 import com.equisplit.service.GroupService;
 import jakarta.validation.Valid;
@@ -67,4 +68,17 @@ public class GroupController {
                 )
         );
     }
+
+    @GetMapping("/{groupId}/members")
+        public ResponseEntity<List<GroupMemberResponse>> getGroupMembers(
+                @PathVariable Long groupId,
+                Authentication authentication) {
+
+        return ResponseEntity.ok(
+                groupService.getGroupMembers(
+                        groupId,
+                        authentication.getName()
+                )
+        );
+        }
 }
