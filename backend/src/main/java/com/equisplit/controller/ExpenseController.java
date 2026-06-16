@@ -2,6 +2,7 @@ package com.equisplit.controller;
 
 import com.equisplit.dto.request.CreateExpenseRequest;
 import com.equisplit.dto.response.BalanceResponse;
+import com.equisplit.dto.response.ExpenseSummaryResponse;
 import java.util.List;
 import com.equisplit.dto.response.ExpenseResponse;
 import com.equisplit.service.ExpenseService;
@@ -40,6 +41,19 @@ public class ExpenseController {
 
         return ResponseEntity.ok(
                 expenseService.getGroupBalances(
+                        groupId,
+                        authentication.getName()
+                )
+        );
+        }
+
+        @GetMapping
+        public ResponseEntity<List<ExpenseSummaryResponse>> getGroupExpenses(
+                @PathVariable Long groupId,
+                Authentication authentication) {
+
+        return ResponseEntity.ok(
+                expenseService.getGroupExpenses(
                         groupId,
                         authentication.getName()
                 )

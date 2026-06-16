@@ -20,6 +20,7 @@ import com.equisplit.dto.response.BalanceResponse;
 import java.util.List;
 import com.equisplit.entity.Settlement;
 import com.equisplit.repository.SettlementRepository;
+import com.equisplit.dto.response.ExpenseSummaryResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -172,6 +173,33 @@ public class ExpenseServiceImpl implements ExpenseService {
                                 .balance(balance)
                                 .build();
                 })
+                .toList();
+        }
+
+        @Override
+        public List<ExpenseSummaryResponse> getGroupExpenses(
+                Long groupId,
+                String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        groupMemberRepository.findByGroupAndUser(group, user)
+                .orElseThrow(() ->
+                        new RuntimeException("You are not a member of this group"));
+
+        return expenseRepository.findByGroup(group)
+                .stream()
+                .map(expense -> ExpenseSummaryResponse.builder()
+                        .id(expense.getId())
+                        .amount(expense.getAmount())
+                        .category(expense.getCategory())
+                        .description(expense.getDescription())
+                        .paidBy(expense.getPaidBy().getName())
+                        .build())
                 .toList();
         }
 }
