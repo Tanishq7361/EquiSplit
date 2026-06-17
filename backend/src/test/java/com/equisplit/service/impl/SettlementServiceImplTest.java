@@ -75,7 +75,7 @@ class SettlementServiceImplTest {
         CreateSettlementRequest request =
                 new CreateSettlementRequest();
 
-        request.setReceiverEmail("friend@test.com");
+        request.setReceiverId(2L);
         request.setAmount(BigDecimal.valueOf(500));
 
         when(userRepository.findByEmail("owner@test.com"))
@@ -87,7 +87,7 @@ class SettlementServiceImplTest {
         when(groupMemberRepository.findByGroupAndUser(group, payer))
                 .thenReturn(Optional.of(mock(GroupMember.class)));
 
-        when(userRepository.findByEmail("friend@test.com"))
+        when(userRepository.findById(2L))
                 .thenReturn(Optional.of(receiver));
 
         when(groupMemberRepository.findByGroupAndUser(group, receiver))
@@ -136,7 +136,7 @@ class SettlementServiceImplTest {
         CreateSettlementRequest request =
                 new CreateSettlementRequest();
 
-        request.setReceiverEmail("friend@test.com");
+        request.setReceiverId(2L);
         request.setAmount(BigDecimal.valueOf(500));
 
         when(userRepository.findByEmail("owner@test.com"))

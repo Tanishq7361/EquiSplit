@@ -43,8 +43,9 @@ public class SettlementServiceImpl implements SettlementService {
                 .orElseThrow(() ->
                         new UnauthorizedActionException("You are not a member of this group"));
 
-        User receiver = userRepository.findByEmail(request.getReceiverEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Receiver not found"));
+        User receiver = userRepository.findById(request.getReceiverId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Receiver not found"));
 
         groupMemberRepository.findByGroupAndUser(group, receiver)
                 .orElseThrow(() ->

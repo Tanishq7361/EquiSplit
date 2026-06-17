@@ -1,0 +1,37 @@
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-weight: 600;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* Sizes */
+.sm  { width: 28px; height: 28px; font-size: var(--text-xs); }
+.md  { width: 36px; height: 36px; font-size: var(--text-sm); }
+.lg  { width: 48px; height: 48px; font-size: var(--text-lg); }
+.xl  { width: 64px; height: 64px; font-size: var(--text-2xl); }
+
+/* Color variants derived from initials */
+.color0 { background: #4f46e5; color: #e0e7ff; }
+.color1 { background: #0891b2; color: #cffafe; }
+.color2 { background: #059669; color: #d1fae5; }
+.color3 { background: #d97706; color: #fef3c7; }
+.color4 { background: #dc2626; color: #fee2e2; }
+.color5 { background: #7c3aed; color: #ede9fe; }
+
+.group {
+  display: flex;
+  align-items: center;
+}
+
+.group .avatar {
+  border: 2px solid var(--color-surface);
+}
+
+.group .avatar + .avatar {
+  margin-left: -8px;
+}

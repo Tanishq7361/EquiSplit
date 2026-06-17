@@ -17,12 +17,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.equisplit.entity.ExpenseSplit;
 import com.equisplit.repository.ExpenseSplitRepository;
+
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import com.equisplit.dto.response.BalanceResponse;
 import java.util.List;
 import com.equisplit.entity.Settlement;
 import com.equisplit.repository.SettlementRepository;
 import com.equisplit.dto.response.ExpenseSummaryResponse;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,10 +39,11 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final UserRepository userRepository;
 
     @Override
-    public ExpenseResponse createExpense(
-            Long groupId,
-            CreateExpenseRequest request,
-            String userEmail) {
+        @Transactional
+        public ExpenseResponse createExpense(
+                Long groupId,
+                CreateExpenseRequest request,
+                String userEmail) {
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -69,21 +73,35 @@ public class ExpenseServiceImpl implements ExpenseService {
         int memberCount = members.size();
 
         var equalShare = request.getAmount()
-                .divide(
-                        java.math.BigDecimal.valueOf(memberCount),
-                        2,
-                        java.math.RoundingMode.HALF_UP
-                );
+        .divide(
+                java.math.BigDecimal.valueOf(memberCount),
+                2,
+                java.math.RoundingMode.DOWN
+        );
 
-        for (GroupMember member : members) {
+        java.math.BigDecimal assigned =
+                java.math.BigDecimal.ZERO;
 
-            ExpenseSplit split = ExpenseSplit.builder()
-                    .expense(savedExpense)
-                    .user(member.getUser())
-                    .shareAmount(equalShare)
-                    .build();
+        for (int i = 0; i < members.size(); i++) {
 
-            expenseSplitRepository.save(split);
+                GroupMember member = members.get(i);
+
+                java.math.BigDecimal share;
+
+                if (i == members.size() - 1) {
+                        share = request.getAmount().subtract(assigned);
+                } else {
+                        share = equalShare;
+                        assigned = assigned.add(equalShare);
+                }
+
+                ExpenseSplit split = ExpenseSplit.builder()
+                        .expense(savedExpense)
+                        .user(member.getUser())
+                        .shareAmount(share)
+                        .build();
+
+                expenseSplitRepository.save(split);
         }
 
         return ExpenseResponse.builder()
@@ -167,7 +185,10 @@ public class ExpenseServiceImpl implements ExpenseService {
                                 .subtract(owes)
                                 .add(sentSettlements)
                                 .subtract(receivedSettlements);
-
+                        
+                        // java.math.BigDecimal remainingOwes = owes
+                        //         .subtract(sentSettlements)
+                        //         .add(receivedSettlements);
                         return BalanceResponse.builder()
                                 .userName(memberUser.getName())
                                 .paid(paid)
@@ -203,5 +224,33 @@ public class ExpenseServiceImpl implements ExpenseService {
                         .paidBy(expense.getPaidBy().getName())
                         .build())
                 .toList();
+        }
+        @Override
+        public BigDecimal getOutstandingBalance(String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<GroupMember> memberships =
+                groupMemberRepository.findByUser(user);
+
+        return memberships.stream()
+                .map(member -> {
+
+                        Long groupId = member.getGroup().getId();
+
+                        return getGroupBalances(groupId, userEmail)
+                                .stream()
+                                .filter(balance ->
+                                        balance.getUserName().equals(user.getName()))
+                                .findFirst()
+                                .map(BalanceResponse::getBalance)
+                                .orElse(java.math.BigDecimal.ZERO);
+
+                })
+                .reduce(
+                        java.math.BigDecimal.ZERO,
+                        java.math.BigDecimal::add
+                );
         }
 }

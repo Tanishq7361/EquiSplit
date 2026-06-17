@@ -4,6 +4,8 @@ import com.equisplit.dto.request.CreateExpenseRequest;
 import com.equisplit.dto.response.ExpenseResponse;
 import com.equisplit.dto.response.ExpenseSummaryResponse;
 import com.equisplit.dto.response.BalanceResponse;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ExpenseService {
@@ -23,5 +25,7 @@ public interface ExpenseService {
         Long groupId,
         String userEmail
     );
+
+    BigDecimal getOutstandingBalance(String userEmail);
 
 }

@@ -10,4 +10,7 @@ public class GroupSummaryResponse {
     private Long id;
     private String name;
     private String description;
+
+    private Integer memberCount;
+    private Integer totalExpenses;
 }

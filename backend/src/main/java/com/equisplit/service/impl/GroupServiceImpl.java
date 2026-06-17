@@ -18,6 +18,7 @@ import com.equisplit.dto.request.AddMemberRequest;
 import org.springframework.stereotype.Service;
 import com.equisplit.dto.response.GroupDetailsResponse;
 import com.equisplit.dto.response.GroupMemberResponse;
+import com.equisplit.repository.ExpenseRepository;
 
 import java.time.OffsetDateTime;
 
@@ -28,6 +29,7 @@ public class GroupServiceImpl implements GroupService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
+    private final ExpenseRepository expenseRepository;
 
     @Override
     public GroupResponse createGroup(
@@ -64,20 +66,33 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<GroupSummaryResponse> getMyGroups(String userEmail) {
+        public List<GroupSummaryResponse> getMyGroups(String userEmail) {
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return groupMemberRepository.findByUser(user)
                 .stream()
-                .map(member -> GroupSummaryResponse.builder()
-                        .id(member.getGroup().getId())
-                        .name(member.getGroup().getName())
-                        .description(member.getGroup().getDescription())
-                        .build())
+                .map(member -> {
+
+                        Group group = member.getGroup();
+
+                        int memberCount =
+                                groupMemberRepository.findByGroup(group).size();
+
+                        int totalExpenses =
+                                expenseRepository.findByGroup(group).size();
+
+                        return GroupSummaryResponse.builder()
+                                .id(group.getId())
+                                .name(group.getName())
+                                .description(group.getDescription())
+                                .memberCount(memberCount)
+                                .totalExpenses(totalExpenses)
+                                .build();
+                })
                 .toList();
-    }
+        }
 
     @Override
     public void addMember(

@@ -1,5 +1,6 @@
 package com.equisplit.service.impl;
 
+import com.equisplit.repository.ExpenseRepository;
 import com.equisplit.repository.GroupMemberRepository;
 import com.equisplit.repository.GroupRepository;
 import com.equisplit.repository.UserRepository;
@@ -39,6 +40,9 @@ class GroupServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ExpenseRepository expenseRepository;
 
     @InjectMocks
     private GroupServiceImpl groupService;
@@ -116,6 +120,12 @@ class GroupServiceImplTest {
 
         when(groupMemberRepository.findByUser(user))
                 .thenReturn(List.of(membership));
+        
+        when(groupMemberRepository.findByGroup(group))
+                .thenReturn(List.of(membership));
+
+        when(expenseRepository.findByGroup(group))
+                .thenReturn(List.of());
 
         List<GroupSummaryResponse> result =
                 groupService.getMyGroups("test@test.com");

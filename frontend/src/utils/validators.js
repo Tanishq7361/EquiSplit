@@ -1,0 +1,71 @@
+export const validators = {
+  required: (value) => (!value?.toString().trim() ? 'This field is required' : ''),
+
+  email: (value) => {
+    if (!value) return 'Email is required';
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Enter a valid email address';
+  },
+
+  minLength: (min) => (value) =>
+    value?.length >= min ? '' : `Must be at least ${min} characters`,
+
+  maxLength: (max) => (value) =>
+    value?.length <= max ? '' : `Must be ${max} characters or fewer`,
+
+  positiveNumber: (value) => {
+    const n = parseFloat(value);
+    if (isNaN(n)) return 'Must be a number';
+    return n > 0 ? '' : 'Must be greater than zero';
+  },
+
+  compose: (...fns) => (value) => {
+    for (const fn of fns) {
+      const error = fn(value);
+      if (error) return error;
+    }
+    return '';
+  },
+};
+
+export function validateLogin(values) {
+  return {
+    email:    validators.email(values.email),
+    password: validators.required(values.password),
+  };
+}
+
+export function validateRegister(values) {
+  return {
+    name:     validators.compose(validators.required, validators.minLength(2))(values.name),
+    email:    validators.email(values.email),
+    password: validators.compose(validators.required, validators.minLength(8))(values.password),
+  };
+}
+
+export function validateGroup(values) {
+  return {
+    name:        validators.compose(validators.required, validators.minLength(2))(values.name),
+    description: '',
+  };
+}
+
+export function validateExpense(values) {
+  return {
+    description: validators.required(values.description),
+    amount:      validators.positiveNumber(values.amount),
+    paidBy:      validators.required(values.paidBy),
+  };
+}
+
+export function validateSettlement(values) {
+  return {
+    receiverId:    validators.required(values.receiverId),
+    amount:     validators.positiveNumber(values.amount),
+  };
+}
+
+export function validateMember(values) {
+  return {
+    email: validators.email(values.email),
+  };
+}
