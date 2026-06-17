@@ -109,6 +109,24 @@ export default function GroupDetailPage() {
 
 function ExpensesList({ expenses, groupId, navigate }) {
   const [expandedExpense, setExpandedExpense] = useState(null);
+  const handleDelete = async (expenseId) => {
+    const confirmed = window.confirm(
+      "Delete this expense?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await expensesApi.deleteExpense(
+        groupId,
+        expenseId
+      );
+
+      window.location.reload();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
   if (expenses.length === 0) return (
     <EmptyState
       icon="💸"
@@ -167,7 +185,20 @@ function ExpensesList({ expenses, groupId, navigate }) {
               </div>
             )}
           </div>
-          <div className={styles.expenseAmount}>{formatCurrency(exp.amount)}</div>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div className={styles.expenseAmount}>
+              {formatCurrency(exp.amount)}
+            </div>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(exp.id);
+              }}
+            >
+              🗑
+            </button>
+          </div>
         </div>
       ))}
     </div>

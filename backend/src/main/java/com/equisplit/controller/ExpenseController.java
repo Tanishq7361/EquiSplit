@@ -72,4 +72,19 @@ public class ExpenseController {
                 )
         );
         }
+
+        @DeleteMapping("/{expenseId}")
+        public ResponseEntity<Void> deleteExpense(
+                @PathVariable Long groupId,
+                @PathVariable Long expenseId,
+                Authentication authentication) {
+
+        expenseService.deleteExpense(
+                groupId,
+                expenseId,
+                authentication.getName()
+        );
+
+        return ResponseEntity.noContent().build();
+        }
 }

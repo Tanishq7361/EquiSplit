@@ -314,7 +314,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 })
                 .toList();
         }
-        
+
         @Override
         public BigDecimal getOutstandingBalance(String userEmail) {
 
@@ -342,5 +342,37 @@ public class ExpenseServiceImpl implements ExpenseService {
                         java.math.BigDecimal.ZERO,
                         java.math.BigDecimal::add
                 );
+        }
+
+        @Override
+        @Transactional
+        public void deleteExpense(
+                Long groupId,
+                Long expenseId,
+                String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Group not found"));
+
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Expense not found"));
+
+        groupMemberRepository.findByGroupAndUser(group, user)
+                .orElseThrow(() ->
+                        new UnauthorizedActionException(
+                                "You are not a member of this group"
+                        ));
+
+        expenseSplitRepository.deleteAll(
+                expenseSplitRepository.findByExpense(expense)
+        );
+
+        expenseRepository.delete(expense);
         }
 }

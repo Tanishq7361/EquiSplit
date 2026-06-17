@@ -45,4 +45,19 @@ public class SettlementController {
                 )
         );
         }
+
+        @DeleteMapping("/{settlementId}")
+        public ResponseEntity<Void> deleteSettlement(
+                @PathVariable Long groupId,
+                @PathVariable Long settlementId,
+                Authentication authentication) {
+
+        settlementService.deleteSettlement(
+                groupId,
+                settlementId,
+                authentication.getName()
+        );
+
+        return ResponseEntity.noContent().build();
+        }
 }

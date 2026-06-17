@@ -94,4 +94,34 @@ public class SettlementServiceImpl implements SettlementService {
                         .build())
                 .toList();
         }
+
+        @Override
+        public void deleteSettlement(
+                Long groupId,
+                Long settlementId,
+                String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Group not found"));
+
+        groupMemberRepository.findByGroupAndUser(group, user)
+                .orElseThrow(() ->
+                        new UnauthorizedActionException(
+                                "You are not a member of this group"
+                        ));
+
+        Settlement settlement =
+                settlementRepository.findById(settlementId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Settlement not found"
+                                ));
+
+        settlementRepository.delete(settlement);
+        }
 }

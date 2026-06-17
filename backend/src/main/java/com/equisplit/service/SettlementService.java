@@ -17,4 +17,9 @@ public interface SettlementService {
         Long groupId,
         String userEmail
     );
+
+    void deleteSettlement(
+        Long groupId,
+        Long settlementId,
+        String userEmail);
 }

@@ -28,4 +28,9 @@ public interface ExpenseService {
 
     BigDecimal getOutstandingBalance(String userEmail);
 
+    void deleteExpense(
+        Long groupId,
+        Long expenseId,
+        String userEmail);
+
 }
