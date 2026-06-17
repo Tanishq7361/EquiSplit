@@ -249,6 +249,27 @@ function BalancesList({ balances }) {
 }
 
 function SettlementsList({ settlements, groupId, navigate }) {
+  const handleDelete = async (settlementId) => {
+    const confirmed = window.confirm(
+      "Delete this settlement?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+
+      await settlementsApi.deleteSettlement(
+        groupId,
+        settlementId
+      );
+
+      window.location.reload();
+
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   if (!settlements.length) return (
     <EmptyState
       icon="↔"
@@ -269,7 +290,26 @@ function SettlementsList({ settlements, groupId, navigate }) {
             </div>
             <div className={styles.settlementDate}>{formatRelativeTime(s.createdAt)}</div>
           </div>
-          <div className={styles.settlementAmount}>{formatCurrency(s.amount)}</div>
+            <div
+              style={{
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'center'
+              }}
+            >
+            <div className={styles.settlementAmount}>
+              {formatCurrency(s.amount)}
+            </div>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(s.id);
+              }}
+            >
+              🗑
+            </button>
+          </div>
         </div>
       ))}
     </div>
