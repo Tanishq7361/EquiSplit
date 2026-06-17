@@ -53,7 +53,7 @@ export function validateExpense(values) {
   return {
     description: validators.required(values.description),
     amount:      validators.positiveNumber(values.amount),
-    paidBy:      validators.required(values.paidBy),
+    paidByUserId:      validators.required(values.paidByUserId),
   };
 }
 

@@ -11,6 +11,9 @@ import java.math.BigDecimal;
 public class CreateExpenseRequest {
 
     @NotNull
+    private Long paidByUserId;
+    
+    @NotNull
     @DecimalMin("0.01")
     private BigDecimal amount;
 

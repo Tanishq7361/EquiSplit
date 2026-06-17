@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.equisplit.entity.ExpenseSplit;
 import com.equisplit.repository.ExpenseSplitRepository;
-
+import com.equisplit.dto.response.ExpenseSplitResponse;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import com.equisplit.dto.response.BalanceResponse;
@@ -45,20 +45,23 @@ public class ExpenseServiceImpl implements ExpenseService {
                 CreateExpenseRequest request,
                 String userEmail) {
 
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         
-        groupMemberRepository.findByGroupAndUser(group, user)
-            .orElseThrow(() ->
-                    new UnauthorizedActionException("You are not a member of this group"));
+        
 
+        User payer = userRepository.findById(
+                        request.getPaidByUserId()
+                ).orElseThrow(() ->
+                        new ResourceNotFoundException("Payer not found"));
+
+        groupMemberRepository.findByGroupAndUser(group, payer)
+            .orElseThrow(() ->
+                    new UnauthorizedActionException("Payer are not a member of this group"));
         Expense expense = Expense.builder()
                 .group(group)
-                .paidBy(user)
+                .paidBy(payer)
                 .amount(request.getAmount())
                 .category(request.getCategory())
                 .description(request.getDescription())
@@ -181,7 +184,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .amount(savedExpense.getAmount())
                 .category(savedExpense.getCategory())
                 .description(savedExpense.getDescription())
-                .paidBy(user.getName())
+                .paidBy(payer.getName())
                 .build();
     }
 
@@ -288,15 +291,30 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         return expenseRepository.findByGroup(group)
                 .stream()
-                .map(expense -> ExpenseSummaryResponse.builder()
+                .map(expense -> {
+
+                List<ExpenseSplitResponse> splits =
+                        expenseSplitRepository.findByExpense(expense)
+                                .stream()
+                                .map(split -> ExpenseSplitResponse.builder()
+                                        .userName(split.getUser().getName())
+                                        .shareAmount(split.getShareAmount())
+                                        .build())
+                                .toList();
+
+                return ExpenseSummaryResponse.builder()
                         .id(expense.getId())
                         .amount(expense.getAmount())
                         .category(expense.getCategory())
                         .description(expense.getDescription())
                         .paidBy(expense.getPaidBy().getName())
-                        .build())
+                        .splitType(expense.getSplitType())
+                        .splits(splits)
+                        .build();
+                })
                 .toList();
         }
+        
         @Override
         public BigDecimal getOutstandingBalance(String userEmail) {
 

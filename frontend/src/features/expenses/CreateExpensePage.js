@@ -15,7 +15,7 @@ const INITIAL = {
   description: '',
   amount: '',
   category: 'FOOD',
-  paidBy: '',
+  paidByUserId: '',
   splitType: 'EQUAL'
 };
 
@@ -32,11 +32,18 @@ export default function CreateExpensePage() {
   const [loadingMembers, setLoadingMembers] = useState(true);
   const [submitting, setSubmitting]         = useState(false);
   const [error, setError]                   = useState(null);
+  const [splits, setSplits] = useState([]);
 
   const load = useCallback(async () => {
     try {
       const { data } = await groupsApi.getMembers(groupId);
       setMembers(data || []);
+      setSplits(
+        (data || []).map(member => ({
+          userId: member.id,
+          value: ''
+        }))
+      );
     } catch (err) {
       setError(err.message);
     } finally {
@@ -50,19 +57,70 @@ export default function CreateExpensePage() {
     useForm(INITIAL, validateExpense);
 
   const memberOptions = members.map((m) => ({
-    value: m.id || m.email,
-    label: m.name || m.email,
+    value: m.id,
+    label: m.name,
   }));
 
+  const updateSplit = (userId, value) => {
+    setSplits(prev =>
+      prev.map(split =>
+        split.userId === userId
+          ? { ...split, value }
+          : split
+      )
+    );
+  };
+
   const onSubmit = async (vals) => {
+    console.log("SUBMIT CALLED", vals);
+    setError(null);
+    // EXACT validation
+    if (vals.splitType === 'EXACT') {
+
+      const total = splits.reduce(
+        (sum, split) => sum + Number(split.value || 0),
+        0
+      );
+
+      if (Math.abs(total - Number(vals.amount)) > 0.01) {
+        setError('Split amounts must equal total expense');
+        return;
+      }
+    }
+
+    // PERCENTAGE validation
+    if (vals.splitType === 'PERCENTAGE') {
+
+      const total = splits.reduce(
+        (sum, split) => sum + Number(split.value || 0),
+        0
+      );
+
+      if (Math.abs(total - 100) > 0.01) {
+        setError('Percentages must add up to 100');
+        return;
+      }
+    }
+
     setSubmitting(true);
     setError(null);
+
     try {
       await expensesApi.createExpense(groupId, {
         ...vals,
         amount: parseFloat(vals.amount),
+
+        splits:
+          vals.splitType === 'EQUAL'
+            ? null
+            : splits.map(split => ({
+                userId: split.userId,
+                value: parseFloat(split.value || 0)
+              }))
       });
+
       navigate(`/groups/${groupId}`);
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -120,16 +178,18 @@ export default function CreateExpensePage() {
             onChange={handleChange}
             onBlur={handleBlur}
           />
+
           <Select
             label="Paid by"
-            name="paidBy"
+            name="paidByUserId"
             options={memberOptions}
             placeholder="Select member"
-            value={values.paidBy}
+            value={values.paidByUserId}
             onChange={handleChange}
             onBlur={handleBlur}
             error={touched.paidBy && errors.paidBy}
           />
+
           <Select
             label="Split type"
             name="splitType"
@@ -137,6 +197,61 @@ export default function CreateExpensePage() {
             value={values.splitType}
             onChange={handleChange}
           />
+
+          {values.splitType === 'EXACT' && (
+            <div>
+              <h4>Exact Split</h4>
+              <p>
+                Total : 
+                ₹{splits.reduce(
+                  (sum, s) => sum + Number(s.value || 0),
+                  0
+                )}
+              </p>
+              {members.map(member => (
+                <Input
+                  key={member.id}
+                  label={member.name}
+                  type="number"
+                  step="0.01"
+                  value={
+                    splits.find(s => s.userId === member.id)?.value || ''
+                  }
+                  onChange={(e) =>
+                    updateSplit(member.id, e.target.value)
+                  }
+                />
+              ))}
+            </div>
+            
+          )}
+
+          {values.splitType === 'PERCENTAGE' && (
+            <div>
+              <h4>Percentage Split</h4>
+              <p>
+                Total : 
+                {splits.reduce(
+                  (sum, s) => sum + Number(s.value || 0),
+                  0
+                )}%
+              </p>
+              {members.map(member => (
+                <Input
+                  key={member.id}
+                  label={`${member.name} (%)`}
+                  type="number"
+                  step="0.01"
+                  value={
+                    splits.find(s => s.userId === member.id)?.value || ''
+                  }
+                  onChange={(e) =>
+                    updateSplit(member.id, e.target.value)
+                  }
+                />
+              ))}
+            </div>
+          )}
 
           <div className={styles.formActions}>
             <Button type="button" variant="secondary" onClick={() => navigate(-1)}>

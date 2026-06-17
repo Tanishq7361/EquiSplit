@@ -108,6 +108,7 @@ export default function GroupDetailPage() {
 /* ── Sub-components ─────────────────────────────────────── */
 
 function ExpensesList({ expenses, groupId, navigate }) {
+  const [expandedExpense, setExpandedExpense] = useState(null);
   if (expenses.length === 0) return (
     <EmptyState
       icon="💸"
@@ -120,13 +121,51 @@ function ExpensesList({ expenses, groupId, navigate }) {
   return (
     <div className={styles.list}>
       {expenses.map((exp) => (
-        <div key={exp.id} className={styles.expenseItem}>
+        <div key={exp.id} className={styles.expenseItem}
+            onClick={() =>
+            setExpandedExpense(
+              expandedExpense === exp.id ? null : exp.id
+            )
+          }
+          style={{ cursor: 'pointer' }}
+        >
           <div className={styles.expenseIcon}>💸</div>
           <div className={styles.expenseInfo}>
-            <div className={styles.expenseName}>{exp.description}</div>
-            <div className={styles.expenseMeta}>
-              Paid by {exp.paidByName || exp.paidBy} · {formatRelativeTime(exp.createdAt)}
+            <div className={styles.expenseName}>
+              {exp.description}
+              {' '}
+              {expandedExpense === exp.id ? '▲' : '▼'}
             </div>
+            <div className={styles.expenseMeta}>
+              Paid by {exp.paidByName || exp.paidBy}
+            </div>
+              {expandedExpense === exp.id && (
+              <div
+                style={{
+                  marginTop: '10px',
+                  fontSize: '0.9rem',
+                  color: '#cbd5e1'
+                }}
+              >
+                <div>
+                  <strong>Category:</strong> {exp.category}
+                </div>
+
+                <div>
+                  <strong>Split Type:</strong> {exp.splitType}
+                </div>
+
+                <div style={{ marginTop: '8px' }}>
+                  <strong>Split Details</strong>
+                </div>
+
+                {exp.splits?.map((split, idx) => (
+                  <div key={idx}>
+                    {split.userName}: ₹{split.shareAmount}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className={styles.expenseAmount}>{formatCurrency(exp.amount)}</div>
         </div>

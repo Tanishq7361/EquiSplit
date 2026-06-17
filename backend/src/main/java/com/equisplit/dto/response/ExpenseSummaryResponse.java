@@ -2,7 +2,7 @@ package com.equisplit.dto.response;
 
 import lombok.Builder;
 import lombok.Data;
-
+import java.util.List;
 import java.math.BigDecimal;
 
 @Data
@@ -14,4 +14,6 @@ public class ExpenseSummaryResponse {
     private String category;
     private String description;
     private String paidBy;
+    private String splitType;
+    private List<ExpenseSplitResponse> splits;
 }
