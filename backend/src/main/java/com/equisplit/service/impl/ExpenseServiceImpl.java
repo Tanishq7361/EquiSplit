@@ -62,7 +62,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .amount(request.getAmount())
                 .category(request.getCategory())
                 .description(request.getDescription())
-                .splitType("EQUAL")
+                .splitType(request.getSplitType())
                 .createdAt(OffsetDateTime.now())
                 .build();
 
@@ -70,23 +70,26 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         var members = groupMemberRepository.findByGroup(group);
 
-        int memberCount = members.size();
+        switch (request.getSplitType()) {
 
-        var equalShare = request.getAmount()
-        .divide(
-                java.math.BigDecimal.valueOf(memberCount),
-                2,
-                java.math.RoundingMode.DOWN
-        );
+        case "EQUAL" -> {
 
-        java.math.BigDecimal assigned =
-                java.math.BigDecimal.ZERO;
+                int memberCount = members.size();
 
-        for (int i = 0; i < members.size(); i++) {
+                BigDecimal equalShare = request.getAmount()
+                        .divide(
+                                BigDecimal.valueOf(memberCount),
+                                2,
+                                java.math.RoundingMode.DOWN
+                        );
+
+                BigDecimal assigned = BigDecimal.ZERO;
+
+                for (int i = 0; i < members.size(); i++) {
 
                 GroupMember member = members.get(i);
 
-                java.math.BigDecimal share;
+                BigDecimal share;
 
                 if (i == members.size() - 1) {
                         share = request.getAmount().subtract(assigned);
@@ -95,13 +98,82 @@ public class ExpenseServiceImpl implements ExpenseService {
                         assigned = assigned.add(equalShare);
                 }
 
-                ExpenseSplit split = ExpenseSplit.builder()
-                        .expense(savedExpense)
-                        .user(member.getUser())
-                        .shareAmount(share)
-                        .build();
+                expenseSplitRepository.save(
+                        ExpenseSplit.builder()
+                                .expense(savedExpense)
+                                .user(member.getUser())
+                                .shareAmount(share)
+                                .build()
+                );
+                }
+        }
 
-                expenseSplitRepository.save(split);
+        case "EXACT" -> {
+
+                BigDecimal total = request.getSplits()
+                        .stream()
+                        .map(split -> split.getValue())
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                if (total.compareTo(request.getAmount()) != 0) {
+                throw new IllegalArgumentException(
+                        "Split amounts must equal expense amount"
+                );
+                }
+
+                for (var split : request.getSplits()) {
+
+                User splitUser = userRepository.findById(split.getUserId())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("User not found"));
+
+                expenseSplitRepository.save(
+                        ExpenseSplit.builder()
+                                .expense(savedExpense)
+                                .user(splitUser)
+                                .shareAmount(split.getValue())
+                                .build()
+                );
+                }
+        }
+
+        case "PERCENTAGE" -> {
+
+                BigDecimal totalPercentage = request.getSplits()
+                        .stream()
+                        .map(split -> split.getValue())
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                if (totalPercentage.compareTo(BigDecimal.valueOf(100)) != 0) {
+                throw new IllegalArgumentException(
+                        "Percentages must sum to 100"
+                );
+                }
+
+                for (var split : request.getSplits()) {
+
+                User splitUser = userRepository.findById(split.getUserId())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("User not found"));
+
+                BigDecimal share = request.getAmount()
+                        .multiply(split.getValue())
+                        .divide(BigDecimal.valueOf(100), 2,
+                                java.math.RoundingMode.HALF_UP);
+
+                expenseSplitRepository.save(
+                        ExpenseSplit.builder()
+                                .expense(savedExpense)
+                                .user(splitUser)
+                                .shareAmount(share)
+                                .build()
+                );
+                }
+        }
+
+        default -> throw new IllegalArgumentException(
+                "Invalid split type"
+        );
         }
 
         return ExpenseResponse.builder()
