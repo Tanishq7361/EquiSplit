@@ -260,8 +260,8 @@ function DebtsList({ debts }) {
           <div className={styles.balanceInfo}>
             <strong>{debt.fromUser}</strong> {"-->"} <strong>{debt.toUser}</strong>
           </div>
-          <div className={styles.positive}>
-            {formatCurrency(debt.amount)}
+          <div className={styles.pending}>
+            🛑 {formatCurrency(debt.amount)}
           </div>
         </div>
 
@@ -329,7 +329,7 @@ function SettlementsList({ settlements, groupId, navigate }) {
                 handleDelete(s.id);
               }}
             >
-            ❌
+            ✖️
             </button>
           </div>
         </div>
@@ -349,6 +349,30 @@ function MembersList({ members, balances, groupId, navigate }) {
           b => b.userName === m.name
         );
 
+        const handleRemoveMember = async (userId) => {
+
+        const confirmed = window.confirm(
+          "Remove this member?"
+        );
+
+        if (!confirmed) return;
+
+        try {
+
+          await groupsApi.removeMember(
+            groupId,
+            userId
+          );
+
+          window.location.reload();
+
+        } catch (err) {
+
+          alert(err.message);
+
+        }
+      };
+
         return (
 
           <div key={m.id || m.email} className={styles.memberItem}>
@@ -366,30 +390,58 @@ function MembersList({ members, balances, groupId, navigate }) {
             >
 
                 <div>
-                    <div className={styles.memberName}>
-                        {m.name}
-                    </div>
+                  <div className={styles.memberName}>
+                      {m.name}
+                  </div>
 
-                    <div className={styles.memberEmail}>
-                        {m.email}
-                    </div>
-                </div>
+                  <div
+                      style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                          marginTop: "2px"
+                      }}
+                  >
+                      <div className={styles.memberEmail}>
+                          {m.email}
+                      </div>
 
-                <div
-                    className={
-                        balance?.balance >= 0
-                            ? styles.positive
-                            : styles.negative
-                    }
-                    style={{
-                        fontWeight: "bold",
-                        fontSize: "1rem"
-                    }}
-                >
-                    {balance
-                        ? formatCurrency(balance.balance)
-                        : "₹0"}
-                </div>
+                      {m.role !== "OWNER" && (
+                          <button
+                              onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveMember(m.id);
+                              }}
+                              style={{
+                                  border: "none",
+                                  background: "transparent",
+                                  color: "#ef4444",
+                                  cursor: "pointer",
+                                  fontSize: "0.8rem",
+                                  fontWeight: "600"
+                              }}
+                          >
+                              Remove
+                          </button>
+                      )}
+                  </div>
+              </div>
+
+              <div
+                  className={
+                      balance?.balance >= 0
+                          ? styles.positive
+                          : styles.negative
+                  }
+                  style={{
+                      fontWeight: "bold",
+                      fontSize: "1rem"
+                  }}
+              >
+                  {balance
+                      ? formatCurrency(balance.balance)
+                      : "₹0"}
+              </div>
 
             </div>
 

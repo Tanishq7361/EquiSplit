@@ -11,7 +11,6 @@
   line-height: 1;
   transition: all var(--transition-fast);
   white-space: nowrap;
-  user-select: none;
   cursor: pointer;
   border: 1.5px solid transparent;
 }

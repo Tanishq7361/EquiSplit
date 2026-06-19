@@ -247,6 +247,7 @@
 
 .positive { color: var(--color-success); }
 .negative { color: var(--color-danger); }
+.pending { color: #ff9b31; }
 
 /* Settlement */
 .settlementItem {

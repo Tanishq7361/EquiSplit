@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.equisplit.dto.response.GroupDetailsResponse;
 import com.equisplit.dto.response.GroupMemberResponse;
 import com.equisplit.repository.ExpenseRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 
@@ -196,6 +197,7 @@ public class GroupServiceImpl implements GroupService {
         }
 
         @Override
+        @Transactional
         public void removeMember(
                 Long groupId,
                 Long userId,
