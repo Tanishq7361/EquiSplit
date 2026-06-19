@@ -66,6 +66,7 @@ public class SettlementServiceImpl implements SettlementService {
                 .payerName(payer.getName())
                 .receiverName(receiver.getName())
                 .amount(savedSettlement.getAmount())
+                .createdAt(settlement.getCreatedAt())
                 .build();
     }
 
@@ -91,6 +92,7 @@ public class SettlementServiceImpl implements SettlementService {
                         .payerName(settlement.getPayer().getName())
                         .receiverName(settlement.getReceiver().getName())
                         .amount(settlement.getAmount())
+                        .createdAt(settlement.getCreatedAt())
                         .build())
                 .toList();
         }

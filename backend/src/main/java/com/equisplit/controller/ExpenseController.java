@@ -1,6 +1,7 @@
 package com.equisplit.controller;
 
 import com.equisplit.dto.request.CreateExpenseRequest;
+import com.equisplit.dto.request.UpdateExpenseRequest;
 import com.equisplit.dto.response.BalanceResponse;
 import com.equisplit.dto.response.ExpenseSummaryResponse;
 
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.equisplit.dto.response.DebtResponse;
 
 @RestController
 @RequestMapping("/api/v1/groups/{groupId}/expenses")
@@ -21,22 +23,22 @@ public class ExpenseController {
 
     private final ExpenseService expenseService;
 
-    @PostMapping
-    public ResponseEntity<ExpenseResponse> createExpense(
-            @PathVariable Long groupId,
-            @Valid @RequestBody CreateExpenseRequest request,
-            Authentication authentication) {
+        @PostMapping
+        public ResponseEntity<ExpenseResponse> createExpense(
+                @PathVariable Long groupId,
+                @Valid @RequestBody CreateExpenseRequest request,
+                Authentication authentication) {
 
-        return ResponseEntity.ok(
-                expenseService.createExpense(
-                        groupId,
-                        request,
-                        authentication.getName()
-                )
-        );
-    }
+                return ResponseEntity.ok(
+                        expenseService.createExpense(
+                                groupId,
+                                request,
+                                authentication.getName()
+                        )
+                );
+        }
 
-    @GetMapping("/balances")
+        @GetMapping("/balances")
         public ResponseEntity<List<BalanceResponse>> getBalances(
                 @PathVariable Long groupId,
                 Authentication authentication) {
@@ -86,5 +88,50 @@ public class ExpenseController {
         );
 
         return ResponseEntity.noContent().build();
+        }
+
+        @GetMapping("/debts")
+        public ResponseEntity<List<DebtResponse>> getSimplifiedDebts(
+                @PathVariable Long groupId,
+                Authentication authentication) {
+
+        return ResponseEntity.ok(
+                expenseService.getSimplifiedDebts(
+                        groupId,
+                        authentication.getName()
+                )
+        );
+        }
+
+        @PutMapping("/{expenseId}")
+        public ResponseEntity<ExpenseResponse> updateExpense(
+                @PathVariable Long groupId,
+                @PathVariable Long expenseId,
+                @Valid @RequestBody UpdateExpenseRequest request,
+                Authentication authentication
+        ) {
+        return ResponseEntity.ok(
+                expenseService.updateExpense(
+                        groupId,
+                        expenseId,
+                        request,
+                        authentication.getName()
+                )
+        );
+        }
+
+        @GetMapping("/{expenseId}")
+        public ResponseEntity<ExpenseSummaryResponse> getExpense(
+                @PathVariable Long groupId,
+                @PathVariable Long expenseId,
+                Authentication authentication) {
+
+        return ResponseEntity.ok(
+                expenseService.getExpense(
+                        groupId,
+                        expenseId,
+                        authentication.getName()
+                )
+        );
         }
 }

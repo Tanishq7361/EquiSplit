@@ -7,9 +7,9 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
-public class ExpenseSplitResponse {
+public class DebtResponse {
 
-    private Long userId;
-    private String userName;
-    private BigDecimal shareAmount;
+    private String fromUser;
+    private String toUser;
+    private BigDecimal amount;
 }

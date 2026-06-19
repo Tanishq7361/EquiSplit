@@ -11,7 +11,12 @@ import { Avatar } from '../../components/common/Avatar';
 import { formatCurrency, formatRelativeTime } from '../../utils/formatters';
 import styles from './groups.module.css';
 
-const TABS = ['Expenses', 'Balances', 'Settlements', 'Members'];
+const TABS = [
+  'Expenses',
+  'Debts',
+  'Settlements',
+  'Members'
+];
 
 export default function GroupDetailPage() {
   const { groupId } = useParams();
@@ -22,6 +27,7 @@ export default function GroupDetailPage() {
   const [members, setMembers]           = useState([]);
   const [expenses, setExpenses]         = useState([]);
   const [balances, setBalances]         = useState([]);
+  const [debts, setDebts]               = useState([]);
   const [settlements, setSettlements]   = useState([]);
   const [loading, setLoading]           = useState(true);
   const [error, setError]               = useState(null);
@@ -29,17 +35,19 @@ export default function GroupDetailPage() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const [gRes, mRes, eRes, bRes, sRes] = await Promise.all([
-        groupsApi.getGroup(groupId),
-        groupsApi.getMembers(groupId),
-        expensesApi.getExpenses(groupId),
-        expensesApi.getBalances(groupId),
-        settlementsApi.getSettlements(groupId),
+      const [gRes, mRes, eRes, bRes, dRes, sRes] = await Promise.all([
+          groupsApi.getGroup(groupId),
+          groupsApi.getMembers(groupId),
+          expensesApi.getExpenses(groupId),
+          expensesApi.getBalances(groupId),
+          expensesApi.getDebts(groupId),
+          settlementsApi.getSettlements(groupId),
       ]);
       setGroup(gRes.data);
       setMembers(mRes.data || []);
       setExpenses(eRes.data || []);
       setBalances(bRes.data || []);
+      setDebts(dRes.data || []);
       setSettlements(sRes.data || []);
     } catch (err) {
       setError(err.message);
@@ -88,18 +96,17 @@ export default function GroupDetailPage() {
         ))}
       </div>
 
-      {/* Tab content */}
       {activeTab === 'Expenses' && (
         <ExpensesList expenses={expenses} groupId={groupId} navigate={navigate} />
       )}
-      {activeTab === 'Balances' && (
-        <BalancesList balances={balances} members={members} navigate={navigate} groupId={groupId} />
+      {activeTab === 'Debts' && (
+        <DebtsList debts={debts} />
       )}
       {activeTab === 'Settlements' && (
         <SettlementsList settlements={settlements} groupId={groupId} navigate={navigate} />
       )}
       {activeTab === 'Members' && (
-        <MembersList members={members} groupId={groupId} navigate={navigate} />
+        <MembersList members={members} balances={balances} groupId={groupId} navigate={navigate} />
       )}
     </div>
   );
@@ -155,7 +162,17 @@ function ExpensesList({ expenses, groupId, navigate }) {
               {expandedExpense === exp.id ? '▲' : '▼'}
             </div>
             <div className={styles.expenseMeta}>
-              Paid by {exp.paidByName || exp.paidBy}
+                Paid by {exp.paidByName || exp.paidBy}
+            </div>
+
+            <div
+                style={{
+                    fontSize: "0.8rem",
+                    color: "#94a3b8",
+                    marginTop: "4px"
+                }}
+            >
+                {formatRelativeTime(exp.createdAt)}
             </div>
               {expandedExpense === exp.id && (
               <div
@@ -205,44 +222,38 @@ function ExpensesList({ expenses, groupId, navigate }) {
   );
 }
 
-function BalancesList({ balances }) {
+function DebtsList({ debts }) {
 
-  if (!balances.length) {
+  if (!debts.length) {
     return (
       <EmptyState
-        icon="✓"
-        title="All settled up"
-        description="No outstanding balances."
+        icon="✅"
+        title="No debts"
+        description="Everyone is settled up."
       />
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-      {balances.map((b, i) => (
-        <div key={i} className={styles.balanceItem}>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 'var(--space-2)'
+    }}>
+      {debts.map((debt, index) => (
+
+        <div
+          key={index}
+          className={styles.balanceItem}
+        >
           <div className={styles.balanceInfo}>
-            <div>
-              <strong>{b.userName}</strong>
-            </div>
-
-            <div>
-              Net Balance:
-              {b.balance >= 0 ? ' +' : ' '}
-              {formatCurrency(b.balance)}
-            </div>
+            <strong>{debt.fromUser}</strong> {"-->"} <strong>{debt.toUser}</strong>
           </div>
-
-          <div
-            className={
-              b.balance >= 0
-                ? styles.positive
-                : styles.negative
-            }
-          >
-            {formatCurrency(b.balance)}
+          <div className={styles.positive}>
+            {formatCurrency(debt.amount)}
           </div>
         </div>
+
       ))}
     </div>
   );
@@ -286,7 +297,7 @@ function SettlementsList({ settlements, groupId, navigate }) {
           <div className={styles.settlementIcon}>✓</div>
           <div className={styles.settlementInfo}>
             <div className={styles.settlementText}>
-              <strong>{s.payerName || s.payerId}</strong> paid <strong>{s.payeeName || s.payeeId}</strong>
+              <strong>{s.payerName}</strong>{" -> "}<strong>{s.receiverName}</strong>
             </div>
             <div className={styles.settlementDate}>{formatRelativeTime(s.createdAt)}</div>
           </div>
@@ -316,18 +327,66 @@ function SettlementsList({ settlements, groupId, navigate }) {
   );
 }
 
-function MembersList({ members, groupId, navigate }) {
+function MembersList({ members, balances, groupId, navigate }) {
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-      {members.map((m) => (
-        <div key={m.id || m.email} className={styles.memberItem}>
-          <Avatar name={m.name || m.email} size="md" />
-          <div className={styles.memberInfo}>
-            <div className={styles.memberName}>{m.name || '—'}</div>
-            <div className={styles.memberEmail}>{m.email}</div>
+
+      {members.map((m) => {
+
+        const balance = balances.find(
+          b => b.userName === m.name
+        );
+
+        return (
+
+          <div key={m.id || m.email} className={styles.memberItem}>
+
+            <Avatar name={m.name || m.email} size="md" />
+
+            <div
+                className={styles.memberInfo}
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    width: "100%"
+                }}
+            >
+
+                <div>
+                    <div className={styles.memberName}>
+                        {m.name}
+                    </div>
+
+                    <div className={styles.memberEmail}>
+                        {m.email}
+                    </div>
+                </div>
+
+                <div
+                    className={
+                        balance?.balance >= 0
+                            ? styles.positive
+                            : styles.negative
+                    }
+                    style={{
+                        fontWeight: "bold",
+                        fontSize: "1rem"
+                    }}
+                >
+                    {balance
+                        ? formatCurrency(balance.balance)
+                        : "₹0"}
+                </div>
+
+            </div>
+
           </div>
-        </div>
-      ))}
+
+        );
+      })}
+
       <Button
         size="sm"
         variant="secondary"
@@ -336,6 +395,7 @@ function MembersList({ members, groupId, navigate }) {
       >
         + Add member
       </Button>
+
     </div>
   );
 }

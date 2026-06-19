@@ -7,6 +7,21 @@ const expensesApi = {
 
   deleteExpense: (groupId, expenseId) =>
   apiClient.delete(`/groups/${groupId}/expenses/${expenseId}`),
+  getDebts: (groupId) =>
+    apiClient.get(`/groups/${groupId}/expenses/debts`),
+
+  updateExpense(groupId, expenseId, data) {
+      return apiClient.put(
+          `/groups/${groupId}/expenses/${expenseId}`,
+          data
+      );
+  },
+
+  getExpense(groupId, expenseId) {
+      return apiClient.get(
+          `/groups/${groupId}/expenses/${expenseId}`
+      );
+  },
 };
 
 export default expensesApi;

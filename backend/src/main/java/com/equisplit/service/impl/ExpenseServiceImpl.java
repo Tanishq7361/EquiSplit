@@ -26,6 +26,9 @@ import com.equisplit.entity.Settlement;
 import com.equisplit.repository.SettlementRepository;
 import com.equisplit.dto.response.ExpenseSummaryResponse;
 import org.springframework.transaction.annotation.Transactional;
+import com.equisplit.dto.response.DebtResponse;
+import com.equisplit.dto.request.UpdateExpenseRequest;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -188,7 +191,105 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .build();
     }
 
-    @Override
+
+
+        @Override
+        @Transactional
+        public ExpenseResponse updateExpense(
+                Long groupId,
+                Long expenseId,
+                UpdateExpenseRequest request,
+                String userEmail) {
+
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Group not found"));
+
+        groupMemberRepository.findByGroupAndUser(group, currentUser)
+                .orElseThrow(() ->
+                        new UnauthorizedActionException(
+                                "You are not a member of this group"));
+
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Expense not found"));
+
+        User paidBy = userRepository.findById(request.getPaidBy())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Paid by user not found"));
+
+        expense.setAmount(request.getAmount());
+        expense.setCategory(request.getCategory());
+        expense.setDescription(request.getDescription());
+        expense.setSplitType(request.getSplitType());
+        expense.setPaidBy(paidBy);
+
+        expenseRepository.save(expense);
+
+        expenseSplitRepository.deleteByExpense(expense);
+
+        createExpenseSplits(expense, request, group);
+
+        return ExpenseResponse.builder()
+                .id(expense.getId())
+                .amount(expense.getAmount())
+                .category(expense.getCategory())
+                .description(expense.getDescription())
+                .paidBy(paidBy.getName())
+                .build();
+        }
+
+        @Override
+        public ExpenseSummaryResponse getExpense(
+                Long groupId,
+                Long expenseId,
+                String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Group not found"));
+
+        groupMemberRepository.findByGroupAndUser(group, user)
+                .orElseThrow(() ->
+                        new UnauthorizedActionException(
+                                "You are not a member of this group"));
+
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Expense not found"));
+
+        List<ExpenseSplitResponse> splits =
+                expenseSplitRepository.findByExpense(expense)
+                        .stream()
+                        .map(split -> ExpenseSplitResponse.builder()
+                                .userId(split.getUser().getId())
+                                .userName(split.getUser().getName())
+                                .shareAmount(split.getShareAmount())
+                                .build())
+                        .toList();
+
+        return ExpenseSummaryResponse.builder()
+                .id(expense.getId())
+                .amount(expense.getAmount())
+                .category(expense.getCategory())
+                .description(expense.getDescription())
+                .paidBy(expense.getPaidBy().getName())
+                .paidById(expense.getPaidBy().getId())
+                .splitType(expense.getSplitType())
+                .createdAt(expense.getCreatedAt())
+                .splits(splits)
+                .build();
+        }
+
+        @Override
         public List<BalanceResponse> getGroupBalances(
                 Long groupId,
                 String userEmail) {
@@ -297,6 +398,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                         expenseSplitRepository.findByExpense(expense)
                                 .stream()
                                 .map(split -> ExpenseSplitResponse.builder()
+                                        .userId(split.getUser().getId())
                                         .userName(split.getUser().getName())
                                         .shareAmount(split.getShareAmount())
                                         .build())
@@ -308,7 +410,9 @@ public class ExpenseServiceImpl implements ExpenseService {
                         .category(expense.getCategory())
                         .description(expense.getDescription())
                         .paidBy(expense.getPaidBy().getName())
+                        .paidById(expense.getPaidBy().getId())
                         .splitType(expense.getSplitType())
+                        .createdAt(expense.getCreatedAt())
                         .splits(splits)
                         .build();
                 })
@@ -375,4 +479,172 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         expenseRepository.delete(expense);
         }
+
+        @Override
+        public List<DebtResponse> getSimplifiedDebts(
+                Long groupId,
+                String userEmail) {
+
+        List<BalanceResponse> balances =
+                getGroupBalances(groupId, userEmail);
+
+        List<BalanceResponse> creditors = balances.stream()
+                .filter(balance ->
+                        balance.getBalance().compareTo(BigDecimal.ZERO) > 0)
+                .toList();
+
+        List<BalanceResponse> debtors = balances.stream()
+                .filter(balance ->
+                        balance.getBalance().compareTo(BigDecimal.ZERO) < 0)
+                .toList();
+
+        List<DebtResponse> debts = new ArrayList<>();
+
+        int i = 0;
+        int j = 0;
+
+        List<BigDecimal> creditorAmounts =
+                creditors.stream()
+                        .map(BalanceResponse::getBalance)
+                        .map(BigDecimal::abs)
+                        .collect(java.util.stream.Collectors.toList());
+
+        List<BigDecimal> debtorAmounts =
+                debtors.stream()
+                        .map(balance -> balance.getBalance().abs())
+                        .collect(java.util.stream.Collectors.toList());
+
+        while (i < debtors.size() && j < creditors.size()) {
+
+                BigDecimal debtorAmount = debtorAmounts.get(i);
+                BigDecimal creditorAmount = creditorAmounts.get(j);
+
+                BigDecimal transfer =
+                        debtorAmount.min(creditorAmount);
+
+                debts.add(
+                        DebtResponse.builder()
+                                .fromUser(debtors.get(i).getUserName())
+                                .toUser(creditors.get(j).getUserName())
+                                .amount(transfer)
+                                .build()
+                );
+
+                debtorAmounts.set(
+                        i,
+                        debtorAmount.subtract(transfer)
+                );
+
+                creditorAmounts.set(
+                        j,
+                        creditorAmount.subtract(transfer)
+                );
+
+                if (debtorAmounts.get(i)
+                        .compareTo(BigDecimal.ZERO) == 0) {
+                i++;
+                }
+
+                if (creditorAmounts.get(j)
+                        .compareTo(BigDecimal.ZERO) == 0) {
+                j++;
+                }
+        }
+
+        return debts;
+        }
+
+        private void createExpenseSplits(
+                Expense expense,
+                UpdateExpenseRequest request,
+                Group group) {
+
+        var members = groupMemberRepository.findByGroup(group);
+
+        switch (request.getSplitType()) {
+
+                case "EQUAL" -> {
+
+                int memberCount = members.size();
+
+                BigDecimal equalShare = request.getAmount()
+                        .divide(
+                                BigDecimal.valueOf(memberCount),
+                                2,
+                                java.math.RoundingMode.DOWN
+                        );
+
+                BigDecimal assigned = BigDecimal.ZERO;
+
+                for (int i = 0; i < members.size(); i++) {
+
+                        BigDecimal share;
+
+                        if (i == members.size() - 1) {
+                        share = request.getAmount().subtract(assigned);
+                        } else {
+                        share = equalShare;
+                        assigned = assigned.add(equalShare);
+                        }
+
+                        expenseSplitRepository.save(
+                                ExpenseSplit.builder()
+                                        .expense(expense)
+                                        .user(members.get(i).getUser())
+                                        .shareAmount(share)
+                                        .build()
+                        );
+                }
+                }
+
+                case "EXACT" -> {
+
+                for (var split : request.getSplits()) {
+
+                        User user = userRepository.findById(split.getUserId())
+                                .orElseThrow(() ->
+                                        new ResourceNotFoundException("User not found"));
+
+                        expenseSplitRepository.save(
+                                ExpenseSplit.builder()
+                                        .expense(expense)
+                                        .user(user)
+                                        .shareAmount(split.getValue())
+                                        .build()
+                        );
+                }
+                }
+
+                case "PERCENTAGE" -> {
+
+                for (var split : request.getSplits()) {
+
+                        User user = userRepository.findById(split.getUserId())
+                                .orElseThrow(() ->
+                                        new ResourceNotFoundException("User not found"));
+
+                        BigDecimal share = request.getAmount()
+                                .multiply(split.getValue())
+                                .divide(
+                                        BigDecimal.valueOf(100),
+                                        2,
+                                        java.math.RoundingMode.HALF_UP
+                                );
+
+                        expenseSplitRepository.save(
+                                ExpenseSplit.builder()
+                                        .expense(expense)
+                                        .user(user)
+                                        .shareAmount(share)
+                                        .build()
+                        );
+                }
+                }
+
+                default ->
+                        throw new IllegalArgumentException("Invalid split type");
+        }
+        }
+
+        
 }
