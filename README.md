@@ -1,6 +1,6 @@
-# 💸 EquiSplit - Full Stack Expense Sharing Platform
+# 💸 EquiSplit - An Expense Sharing Platform
 
-A production-style **expense sharing platform** inspired by Splitwise, built with **Spring Boot, React, PostgreSQL, JWT Authentication, and Docker**.
+A production-style **expense sharing platform** built with **Spring Boot, React, PostgreSQL, JWT Authentication, and Docker**.
 
 EquiSplit enables users to create groups, split expenses using multiple strategies, calculate balances automatically, record settlements, and simplify debts using the **Min Cash Flow Algorithm**.
 
