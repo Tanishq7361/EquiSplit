@@ -1,10 +1,10 @@
 spring:
   datasource:
-    url: jdbc:postgresql://ep-dawn-water-ao9y3w3k-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?user=neondb_owner&password=npg_yroJGfD3nxi5&sslmode=require&channelBinding=require
-    username: neondb_owner
-    password: npg_yroJGfD3nxi5
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
-
+    
   jpa:
     hibernate:
       ddl-auto: update
@@ -24,5 +24,5 @@ server:
   port: 8080
 
 jwt:
-  secret: ${JWT_SECRET:equisplit-development-secret-key-change-before-production-123456789}
+  secret: ${JWT_SECRET}
   expiration: 86400000
