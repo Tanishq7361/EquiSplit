@@ -203,6 +203,7 @@ function ExpensesList({ expenses, groupId, navigate }) {
             )}
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+
             <div className={styles.expenseAmount}>
               {formatCurrency(exp.amount)}
             </div>
@@ -210,11 +211,21 @@ function ExpensesList({ expenses, groupId, navigate }) {
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                navigate(`/groups/${groupId}/expenses/${exp.id}/edit`);
+              }}
+            >
+            ✏️
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
                 handleDelete(exp.id);
               }}
             >
-              🗑
+            ❌
             </button>
+
           </div>
         </div>
       ))}
@@ -318,7 +329,7 @@ function SettlementsList({ settlements, groupId, navigate }) {
                 handleDelete(s.id);
               }}
             >
-              🗑
+            ❌
             </button>
           </div>
         </div>

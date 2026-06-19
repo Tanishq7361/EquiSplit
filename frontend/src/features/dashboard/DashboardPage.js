@@ -58,16 +58,16 @@ export default function DashboardPage() {
           <span className={styles.statLabel}>Total Groups</span>
         </div>
         <div className={styles.statCard} style={{ '--accent-color': 'var(--color-success)' }}>
-          <span className={styles.statIcon}>$</span>
+          <span className={styles.statIcon}>◈</span>
           <span className={styles.statValue}>
             {groups.reduce((sum, g) => sum + (g.totalExpenses || 0), 0)}
           </span>
           <span className={styles.statLabel}>Total Expenses</span>
         </div>
         <div className={styles.statCard} style={{ '--accent-color': 'var(--color-gold)' }}>
-          <span className={styles.statIcon}>↔</span>
+          <span className={styles.statIcon}>◈</span>
           <span className={styles.statValue}>
-            {outstandingBalance}
+            {outstandingBalance} $
           </span>
           <span className={styles.statLabel}>Net Balance</span>
         </div>

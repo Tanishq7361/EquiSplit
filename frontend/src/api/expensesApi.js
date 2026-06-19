@@ -10,6 +10,12 @@ const expensesApi = {
   getDebts: (groupId) =>
     apiClient.get(`/groups/${groupId}/expenses/debts`),
 
+  getExpense(groupId, expenseId) {
+      return apiClient.get(
+          `/groups/${groupId}/expenses/${expenseId}`
+      );
+  },
+  
   updateExpense(groupId, expenseId, data) {
       return apiClient.put(
           `/groups/${groupId}/expenses/${expenseId}`,
@@ -17,11 +23,7 @@ const expensesApi = {
       );
   },
 
-  getExpense(groupId, expenseId) {
-      return apiClient.get(
-          `/groups/${groupId}/expenses/${expenseId}`
-      );
-  },
+  
 };
 
 export default expensesApi;

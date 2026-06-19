@@ -28,6 +28,7 @@ import CreateExpensePage from './features/expenses/CreateExpensePage';
 // Settlements
 import CreateSettlementPage from './features/settlements/CreateSettlementPage';
 
+import EditExpensePage from './features/expenses/EditExpensePage';
 export default function App() {
   return (
     <BrowserRouter>
@@ -54,6 +55,7 @@ export default function App() {
             <Route path="/groups/:groupId/members/add"                  element={<AddMemberPage />} />
             <Route path="/groups/:groupId/expenses/new"                 element={<CreateExpensePage />} />
             <Route path="/groups/:groupId/settlements/new"              element={<CreateSettlementPage />} />
+            <Route path="/groups/:groupId/expenses/:expenseId/edit"     element={<EditExpensePage />} />
           </Route>
 
           {/* Fallback */}

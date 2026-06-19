@@ -230,7 +230,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         expenseRepository.save(expense);
 
-        expenseSplitRepository.deleteByExpense(expense);
+        expenseSplitRepository.deleteAll(expenseSplitRepository.findByExpense(expense));
+
+        expenseSplitRepository.flush();
 
         createExpenseSplits(expense, request, group);
 

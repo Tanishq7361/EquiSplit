@@ -19,57 +19,73 @@ import com.equisplit.dto.request.AddMemberRequest;
 @RequiredArgsConstructor
 public class GroupController {
 
-    private final GroupService groupService;
+        private final GroupService groupService;
 
-    @PostMapping
-    public ResponseEntity<GroupResponse> createGroup(
-            @Valid @RequestBody CreateGroupRequest request,
-            Authentication authentication) {
+        @PostMapping
+        public ResponseEntity<GroupResponse> createGroup(
+                @Valid @RequestBody CreateGroupRequest request,
+                Authentication authentication) {
 
-        String email = authentication.getName();
+                String email = authentication.getName();
 
-        return ResponseEntity.ok(
-                groupService.createGroup(request, email)
-        );
-    }
-    @GetMapping
-    public ResponseEntity<List<GroupSummaryResponse>> getMyGroups(
-            Authentication authentication) {
+                return ResponseEntity.ok(
+                        groupService.createGroup(request, email)
+                );
+        }
 
-        return ResponseEntity.ok(
-                groupService.getMyGroups(authentication.getName())
-        );
-    }
+        @GetMapping
+        public ResponseEntity<List<GroupSummaryResponse>> getMyGroups(
+                Authentication authentication) {
 
-    @PostMapping("/{groupId}/members")
-    public ResponseEntity<Void> addMember(
-            @PathVariable Long groupId,
-            @Valid @RequestBody AddMemberRequest request,
-            Authentication authentication) {
+                return ResponseEntity.ok(
+                        groupService.getMyGroups(authentication.getName())
+                );
+        }
 
-        groupService.addMember(
+        @PostMapping("/{groupId}/members")
+        public ResponseEntity<Void> addMember(
+                @PathVariable Long groupId,
+                @Valid @RequestBody AddMemberRequest request,
+                Authentication authentication) {
+
+                groupService.addMember(
+                        groupId,
+                        request,
+                        authentication.getName()
+                );
+
+                return ResponseEntity.ok().build();
+        }
+
+        @DeleteMapping("/{groupId}/members/{userId}")
+        public ResponseEntity<Void> removeMember(
+                @PathVariable Long groupId,
+                @PathVariable Long userId,
+                Authentication authentication) {
+
+        groupService.removeMember(
                 groupId,
-                request,
+                userId,
                 authentication.getName()
         );
 
-        return ResponseEntity.ok().build();
-    }
+        return ResponseEntity.noContent().build();
+        }
 
-    @GetMapping("/{groupId}")
-    public ResponseEntity<GroupDetailsResponse> getGroupDetails(
-            @PathVariable Long groupId,
-            Authentication authentication) {
+        @GetMapping("/{groupId}")
+        public ResponseEntity<GroupDetailsResponse> getGroupDetails(
+                @PathVariable Long groupId,
+                Authentication authentication) {
 
-        return ResponseEntity.ok(
-                groupService.getGroupDetails(
-                        groupId,
-                        authentication.getName()
-                )
-        );
-    }
+                return ResponseEntity.ok(
+                        groupService.getGroupDetails(
+                                groupId,
+                                authentication.getName()
+                        )
+                );
+        }
 
-    @GetMapping("/{groupId}/members")
+        @GetMapping("/{groupId}/members")
         public ResponseEntity<List<GroupMemberResponse>> getGroupMembers(
                 @PathVariable Long groupId,
                 Authentication authentication) {

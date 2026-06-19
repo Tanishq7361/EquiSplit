@@ -11,6 +11,7 @@ import com.equisplit.exception.ResourceNotFoundException;
 import com.equisplit.exception.UnauthorizedActionException;
 import com.equisplit.repository.GroupMemberRepository;
 import com.equisplit.repository.GroupRepository;
+import com.equisplit.repository.SettlementRepository;
 import com.equisplit.repository.UserRepository;
 import com.equisplit.service.GroupService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class GroupServiceImpl implements GroupService {
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
     private final ExpenseRepository expenseRepository;
+    private final SettlementRepository settlementRepository;
 
     @Override
     public GroupResponse createGroup(
@@ -191,5 +193,60 @@ public class GroupServiceImpl implements GroupService {
                         .role(member.getRole().name())
                         .build())
                 .toList();
+        }
+
+        @Override
+        public void removeMember(
+                Long groupId,
+                Long userId,
+                String userEmail) {
+
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Group not found"));
+
+        GroupMember ownerMembership =
+                groupMemberRepository.findByGroupAndUser(group, currentUser)
+                        .orElseThrow(() ->
+                                new UnauthorizedActionException(
+                                        "You are not a member of this group"));
+
+        if (ownerMembership.getRole() != GroupRole.OWNER) {
+                throw new UnauthorizedActionException(
+                        "Only owner can remove members");
+        }
+
+        User memberToRemove = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        GroupMember membership =
+                groupMemberRepository.findByGroupAndUser(group, memberToRemove)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Member not found"));
+
+        if (membership.getRole() == GroupRole.OWNER) {
+                throw new UnauthorizedActionException(
+                        "Owner cannot be removed");
+        }
+
+        if (expenseRepository.existsByGroupAndPaidBy(group, memberToRemove)) {
+                throw new UnauthorizedActionException(
+                        "Member has existing expenses");
+        }
+
+        if (settlementRepository.existsByGroupAndPayer(group, memberToRemove)
+                || settlementRepository.existsByGroupAndReceiver(group, memberToRemove)) {
+
+                throw new UnauthorizedActionException(
+                        "Member has existing settlements");
+        }
+
+        groupMemberRepository.deleteByGroupAndUser(group, memberToRemove);
         }
 }

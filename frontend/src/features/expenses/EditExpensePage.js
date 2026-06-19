@@ -34,6 +34,8 @@ export default function EditExpensePage() {
   const [error, setError]                   = useState(null);
   const [splits, setSplits] = useState([]);
 
+  const { values, errors, touched, handleChange, handleBlur, handleSubmit, setValues } = useForm(INITIAL, validateExpense);
+
   const load = useCallback(async () => {
 
     try {
@@ -72,16 +74,6 @@ export default function EditExpensePage() {
     }, [groupId, expenseId, setValues]);
 
   useEffect(() => { load(); }, [load]);
-
-    const {
-        values,
-        errors,
-        touched,
-        handleChange,
-        handleBlur,
-        handleSubmit,
-        setValues
-    } = useForm(INITIAL, validateExpense);
 
   const memberOptions = members.map((m) => ({
     value: m.id,

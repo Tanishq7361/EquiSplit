@@ -95,15 +95,5 @@ export function useForm(initialValues, validate) {
 
   }, []);
 
-  return {
-    values,
-    errors,
-    touched,
-    handleChange,
-    handleBlur,
-    handleSubmit,
-    reset,
-    setFieldValue,
-    setValues
-  };
+  return { values, errors, touched, handleChange, handleBlur, handleSubmit, reset, setFieldValue, setValues };
 }
