@@ -14,4 +14,5 @@ public interface ExpenseSplitRepository
 
     List<ExpenseSplit> findByUser(User user);
     void deleteByExpense(Expense expense);
+    void deleteByExpenseIn(List<Expense> expenses);
 }

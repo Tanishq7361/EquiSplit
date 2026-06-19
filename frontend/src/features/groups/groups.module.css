@@ -27,6 +27,40 @@
   font-size: var(--text-sm);
 }
 
+.deleteBtn {
+  background:#28151F;
+  color: #ff4d4f;
+  /* border: 1px solid #ff4d4f; */
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deleteBtn:hover {
+  background: #ff4d4f;
+  color: white;
+}
+
+.deleteBtnSm {
+  background:#28151F;
+  color: #ff4d4f;
+  /* border: 1px solid #ff4d4f; */
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deleteBtnSm:hover {
+  background: #ff4d4f;
+  color: white;
+}
+
 /* List layout */
 .list {
   display: flex;

@@ -62,6 +62,27 @@ export default function GroupDetailPage() {
   if (error)   return <Alert variant="error">{error}</Alert>;
   if (!group)  return null;
 
+  const handleDeleteGroup = async () => {
+
+    const confirmed = window.confirm(
+        "Delete this group permanently?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+
+        await groupsApi.deleteGroup(groupId);
+
+        navigate("/groups");
+
+    } catch (err) {
+
+        alert(err.message);
+
+    }
+  };
+
   return (
     <div className={styles.page}>
       {/* Header */}
@@ -79,6 +100,9 @@ export default function GroupDetailPage() {
           </Button>
           <Button size="sm" onClick={() => navigate(`/groups/${groupId}/settlements/new`)}>
             Settle Up
+          </Button>
+          <Button size="sm" variant="danger" onClick={handleDeleteGroup}>
+            Delete Group
           </Button>
         </div>
       </div>
@@ -218,12 +242,13 @@ function ExpensesList({ expenses, groupId, navigate }) {
             </button>
 
             <button
+              className={styles.deleteBtn}
               onClick={(e) => {
                 e.stopPropagation();
                 handleDelete(exp.id);
               }}
             >
-            ❌
+              Remove
             </button>
 
           </div>
@@ -320,16 +345,16 @@ function SettlementsList({ settlements, groupId, navigate }) {
               }}
             >
             <div className={styles.settlementAmount}>
-              {formatCurrency(s.amount)}
+               {formatCurrency(s.amount)}  
             </div>
 
-            <button
+            <button className={styles.deleteBtn}
               onClick={(e) => {
                 e.stopPropagation();
                 handleDelete(s.id);
               }}
             >
-            ✖️
+            Remove
             </button>
           </div>
         </div>
@@ -408,17 +433,10 @@ function MembersList({ members, balances, groupId, navigate }) {
 
                       {m.role !== "OWNER" && (
                           <button
+                            className={styles.deleteBtnSm}
                               onClick={(e) => {
                                   e.stopPropagation();
                                   handleRemoveMember(m.id);
-                              }}
-                              style={{
-                                  border: "none",
-                                  background: "transparent",
-                                  color: "#ef4444",
-                                  cursor: "pointer",
-                                  fontSize: "0.8rem",
-                                  fontWeight: "600"
                               }}
                           >
                               Remove

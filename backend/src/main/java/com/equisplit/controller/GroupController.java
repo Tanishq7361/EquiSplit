@@ -97,4 +97,17 @@ public class GroupController {
                 )
         );
         }
+
+        @DeleteMapping("/{groupId}")
+        public ResponseEntity<Void> deleteGroup(
+                @PathVariable Long groupId,
+                Authentication authentication) {
+
+        groupService.deleteGroup(
+                groupId,
+                authentication.getName()
+        );
+
+        return ResponseEntity.noContent().build();
+        }
 }

@@ -3,6 +3,7 @@ import com.equisplit.dto.response.GroupSummaryResponse;
 import java.util.List;
 import com.equisplit.dto.request.CreateGroupRequest;
 import com.equisplit.dto.response.GroupResponse;
+import com.equisplit.entity.Expense;
 import com.equisplit.entity.Group;
 import com.equisplit.entity.GroupMember;
 import com.equisplit.entity.GroupRole;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import com.equisplit.dto.response.GroupDetailsResponse;
 import com.equisplit.dto.response.GroupMemberResponse;
 import com.equisplit.repository.ExpenseRepository;
+import com.equisplit.repository.ExpenseSplitRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
@@ -33,6 +35,7 @@ public class GroupServiceImpl implements GroupService {
     private final UserRepository userRepository;
     private final ExpenseRepository expenseRepository;
     private final SettlementRepository settlementRepository;
+    private final ExpenseSplitRepository expenseSplitRepository;
 
     @Override
     public GroupResponse createGroup(
@@ -250,5 +253,44 @@ public class GroupServiceImpl implements GroupService {
         }
 
         groupMemberRepository.deleteByGroupAndUser(group, memberToRemove);
+        }
+
+        @Override
+        @Transactional
+        public void deleteGroup(
+                Long groupId,
+                String userEmail) {
+
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Group not found"));
+
+        GroupMember membership =
+                groupMemberRepository.findByGroupAndUser(group, currentUser)
+                        .orElseThrow(() ->
+                                new UnauthorizedActionException(
+                                        "You are not a member of this group"));
+
+        if (membership.getRole() != GroupRole.OWNER) {
+                throw new UnauthorizedActionException(
+                        "Only owner can delete group");
+        }
+
+        List<Expense> expenses =
+                expenseRepository.findByGroup(group);
+
+        expenseSplitRepository.deleteByExpenseIn(expenses);
+
+        expenseRepository.deleteByGroup(group);
+
+        settlementRepository.deleteByGroup(group);
+
+        groupMemberRepository.deleteByGroup(group);
+
+        groupRepository.delete(group);
         }
 }
