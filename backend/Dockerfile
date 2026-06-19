@@ -9,4 +9,4 @@ RUN ./mvnw clean package -DskipTests
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "target/equisplit-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java","-Dserver.port=8080","-jar","target/equisplit-0.0.1-SNAPSHOT.jar"]
