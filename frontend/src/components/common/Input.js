@@ -31,6 +31,16 @@ export default function Input({
           id={inputId}
           name={name}
           onWheel={(e) => e.preventDefault()}
+          onKeyDown={(e) => {
+            if (
+              props.type === "number" &&
+              (e.key === "ArrowUp" || e.key === "ArrowDown")
+            ) {
+              e.preventDefault();
+            }
+
+            props.onKeyDown?.(e);
+          }}
           className={classNames(
             styles.input,
             icon && styles.hasIcon,
