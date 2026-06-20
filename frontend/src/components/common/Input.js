@@ -30,6 +30,7 @@ export default function Input({
         <Tag
           id={inputId}
           name={name}
+          onWheel={(e) => e.preventDefault()}
           className={classNames(
             styles.input,
             icon && styles.hasIcon,

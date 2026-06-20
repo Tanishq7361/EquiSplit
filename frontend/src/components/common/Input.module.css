@@ -73,3 +73,14 @@
   font-size: var(--text-xs);
   color: var(--color-text-muted);
 }
+
+.input::-webkit-inner-spin-button,
+.input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
