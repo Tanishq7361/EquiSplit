@@ -8,7 +8,7 @@ import { PageLoader } from '../../components/common/Spinner';
 import Alert from '../../components/common/Alert';
 import EmptyState from '../../components/common/EmptyState';
 import { Avatar } from '../../components/common/Avatar';
-import { formatCurrency, formatRelativeTime } from '../../utils/formatters';
+import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import styles from './groups.module.css';
 
 const TABS = [

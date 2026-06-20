@@ -8,18 +8,20 @@ export function formatDate(dateStr) {
 }
 
 export function formatDateTime(dateString) {
-  
-    if (!dateString) return "-";
+  if (!dateString) return "—";
 
-    return new Date(dateString).toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true
-    });
+  const date = new Date(dateString);
 
+  if (isNaN(date.getTime())) return "—";
+
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
 }
 
 export function formatRelativeTime(dateStr) {
