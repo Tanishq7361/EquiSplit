@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import authApi from '../api/authApi';
+import { useServerLoader } from "./ServerLoaderContext";
 
 const AuthContext = createContext(null);
 
@@ -10,6 +11,7 @@ export function AuthProvider({ children }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState(null);
+  const { showLoader, hideLoader } = useServerLoader();
 
   // Sync user to localStorage
   useEffect(() => {
@@ -20,6 +22,7 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (credentials) => {
     setLoading(true);
     setError(null);
+    showLoader();
     try {
       const { data } = await authApi.login(credentials);
       const { token, ...userData } = data;
@@ -31,13 +34,14 @@ export function AuthProvider({ children }) {
       return { success: false, error: err.message };
     } finally {
       setLoading(false);
+      hideLoader();
     }
   }, []);
 
   const register = useCallback(async (userData) => {
     setLoading(true);
     setError(null);
-
+    showLoader();
     try {
       await authApi.register(userData);
 
@@ -47,6 +51,7 @@ export function AuthProvider({ children }) {
       return { success: false, error: err.message };
     } finally {
       setLoading(false);
+      hideLoader();
     }
   }, []);
 
