@@ -7,6 +7,21 @@ export function formatDate(dateStr) {
   return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(dateStr));
 }
 
+export function formatDateTime(dateString) {
+  
+    if (!dateString) return "-";
+
+    return new Date(dateString).toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+    });
+
+}
+
 export function formatRelativeTime(dateStr) {
   if (!dateStr) return '—';
   const diff = Date.now() - new Date(dateStr).getTime();

@@ -196,7 +196,7 @@ function ExpensesList({ expenses, groupId, navigate }) {
                     marginTop: "4px"
                 }}
             >
-                {formatRelativeTime(exp.createdAt)}
+                {formatDateTime(exp.createdAt)}
             </div>
               {expandedExpense === exp.id && (
               <div
