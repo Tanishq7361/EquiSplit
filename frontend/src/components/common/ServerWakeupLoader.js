@@ -4,9 +4,16 @@ import styles from "./ServerWakeupLoader.module.css";
 const messages = [
   "🚀 Starting EquiSplit...",
   "⏳ Waking up servers...",
+  "It may take few moments 😅",
   "🔒 Connecting securely...",
   "📊 Loading your data...",
-  "✨ Almost ready..."
+  "✨ Almost ready...",
+  "Just There wait a second",
+  "Your Data is being sent",
+  "Pipeline has a leakage wait",
+  "Plumber arrived he will fix it",
+  "Now data is received",
+  "Ok restart and you will be signed up within 5 seconds",
 ];
 
 export default function ServerWakeupLoader() {
@@ -17,7 +24,7 @@ export default function ServerWakeupLoader() {
       setIndex((prev) =>
         prev < messages.length - 1 ? prev + 1 : prev
       );
-    }, 10000);
+    }, 15000);
 
     return () => clearInterval(interval);
   }, []);
@@ -31,7 +38,7 @@ export default function ServerWakeupLoader() {
       </h2>
 
       <p className={styles.subtitle}>
-        This may take up to a minute if the server is sleeping.
+        Thank
       </p>
     </div>
   );
