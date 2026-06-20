@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
@@ -28,8 +28,35 @@ import CreateExpensePage from './features/expenses/CreateExpensePage';
 // Settlements
 import CreateSettlementPage from './features/settlements/CreateSettlementPage';
 
+import apiClient from "./api/apiClient";
+import ServerWakeupLoader from "./components/common/ServerWakeupLoader";
+
 import EditExpensePage from './features/expenses/EditExpensePage';
 export default function App() {
+  const [serverReady, setServerReady] = useState(false);
+  
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setServerReady(true);
+      return;
+    }
+    const wakeServer = async () => {
+      try {
+        await apiClient.get("/groups");
+      } catch (err) {
+        console.error("Server wake-up failed:", err);
+      } finally {
+        setServerReady(true);
+      }
+    };
+    wakeServer();
+  }, []);
+
+  if (!serverReady) {
+      return <ServerWakeupLoader />;
+  }
+
   return (
     <BrowserRouter>
       <AuthProvider>

@@ -1,0 +1,38 @@
+.container {
+    min-height: 100vh;
+    background: #070b1f;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.spinner {
+    width: 70px;
+    height: 70px;
+    border: 6px solid rgba(255,255,255,.2);
+    border-top: 6px solid #6366f1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 30px;
+}
+
+.title {
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+
+.subtitle {
+    margin-top: 20px;
+    color: #94a3b8;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
