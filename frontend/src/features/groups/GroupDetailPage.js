@@ -335,7 +335,7 @@ function SettlementsList({ settlements, groupId, navigate }) {
             <div className={styles.settlementText}>
               <strong>{s.payerName}</strong>{" -> "}<strong>{s.receiverName}</strong>
             </div>
-            <div className={styles.settlementDate}>{formatRelativeTime(s.createdAt)}</div>
+            <div className={styles.settlementDate}>{formatDateTime(s.createdAt)}</div>
           </div>
             <div
               style={{
