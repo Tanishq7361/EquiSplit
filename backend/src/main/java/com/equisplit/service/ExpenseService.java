@@ -57,4 +57,8 @@ public interface ExpenseService {
             Long groupId,
             String userEmail
     );
+
+    List<CategoryExpenseResponse> getOverallCategorySummary(
+            String userEmail
+    );
 }

@@ -363,3 +363,115 @@
     padding: var(--space-6) var(--space-4);
   }
 }
+
+/* ===========================
+   Overview Section
+=========================== */
+
+.overviewSection {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin: 24px 0;
+}
+
+.leftOverview {
+  flex: 1;
+}
+
+.rightOverview {
+  width: 420px;
+  flex-shrink: 0;
+}
+
+/* ===========================
+   Vertical Tabs
+=========================== */
+
+.tabsVertical {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tabsVertical .tab {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media (max-width: 1000px) {
+
+  .overviewSection {
+    flex-direction: column;
+  }
+
+  .rightOverview {
+    width: 100%;
+  }
+
+  .tabsVertical {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+}
+
+.tabCard{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:16px 20px;
+    border-radius:14px;
+    background:var(--color-surface-2);
+    border:1px solid var(--color-border);
+    color:var(--color-text-primary);
+    font-weight:600;
+    transition:all .25s ease;
+    cursor:pointer;
+}
+
+.tabCard:hover{
+    background:rgba(59,130,246,.12);
+    border-color:var(--color-accent);
+    transform:translateX(6px);
+    box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+
+.activeTab{
+    background:linear-gradient(
+        90deg,
+        rgba(59,130,246,.22),
+        rgba(59,130,246,.08)
+    );
+    border-color:var(--color-accent);
+    color:white;
+    box-shadow:0 0 16px rgba(59,130,246,.25);
+}
+
+.tabIcon{
+    font-size:1.2rem;
+    width:28px;
+    display:flex;
+    justify-content:center;
+}
+
+.memberActions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}

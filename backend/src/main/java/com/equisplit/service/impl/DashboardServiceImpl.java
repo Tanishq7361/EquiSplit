@@ -1,7 +1,4 @@
 package com.equisplit.service.impl;
-
-import java.math.BigDecimal;
-
 import org.springframework.stereotype.Service;
 
 import com.equisplit.dto.response.DashboardResponse;
@@ -16,6 +13,8 @@ import com.equisplit.repository.UserRepository;
 import com.equisplit.service.DashboardService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import com.equisplit.dto.response.CategoryExpenseResponse;
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -65,4 +64,23 @@ public class DashboardServiceImpl implements DashboardService {
                 .totalExpenseAmount(totalExpenseAmount)
                 .build();
     }
+
+        @Override
+        public List<CategoryExpenseResponse> getOverallCategorySummary(
+                String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        return expenseRepository
+                .getOverallCategorySummary(user.getId())
+                .stream()
+                .map(result ->
+                        CategoryExpenseResponse.builder()
+                                .category(result[0].toString())
+                                .amount((BigDecimal) result[1])
+                                .build())
+                .toList();
+        }
 }

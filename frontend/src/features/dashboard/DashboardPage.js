@@ -9,6 +9,7 @@ import EmptyState from '../../components/common/EmptyState';
 import { AvatarGroup } from '../../components/common/Avatar';
 import styles from './Dashboard.module.css';
 import dashboardApi from '../../api/dashboardApi';
+import CategoryPieChart from "../../components/charts/CategoryPieChart";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -17,16 +18,23 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
   const [dashboard, setDashboard] = useState(null);
+  const [categoryData, setCategoryData] = useState([]);
 
   const loadGroups = useCallback(async () => {
     try {
-      const [groupsRes, dashboardRes] = await Promise.all([
+     const [
+          groupsRes,
+          dashboardRes,
+          categoryRes
+      ] = await Promise.all([
           groupsApi.getGroups(),
-          dashboardApi.getDashboard()
+          dashboardApi.getDashboard(),
+          dashboardApi.getCategorySummary()
       ]);
 
       setGroups(groupsRes.data || []);
       setDashboard(dashboardRes.data);
+      setCategoryData(categoryRes.data || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -71,15 +79,10 @@ export default function DashboardPage() {
           </span>
           <span className={styles.statLabel}>Total Expense Amount</span>
         </div>
-        <div className={styles.statCard} style={{ "--accent-color": "var(--color-warning)" }}>
-          <span className={styles.statIcon}>◈</span>
-          <span className={styles.statValue}>
-            {dashboard?.totalSettlements ?? 0}
-          </span>
-          <span className={styles.statLabel}> Total Settlements </span>
-        </div>
       </div>
-
+      {categoryData.length > 0 && (
+          <CategoryPieChart data={categoryData} />
+      )}
       {error && <Alert variant="error">{error}</Alert>}
 
       {/* Groups section */}

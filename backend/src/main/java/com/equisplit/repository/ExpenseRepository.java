@@ -23,4 +23,18 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Object[]> getCategorySummary(
             @Param("groupId") Long groupId
     );
+
+    @Query("""
+    SELECT e.category, SUM(e.amount)
+    FROM Expense e
+    WHERE e.group.id IN (
+        SELECT gm.group.id
+        FROM GroupMember gm
+        WHERE gm.user.id = :userId
+    )
+    GROUP BY e.category
+    """)
+    List<Object[]> getOverallCategorySummary(
+            @Param("userId") Long userId
+    );
 }

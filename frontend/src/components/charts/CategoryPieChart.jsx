@@ -28,14 +28,14 @@ export default function CategoryPieChart({ data }) {
     <div
       style={{
         width: "100%",
-        height: 380,
+        height: 280,
         background: "var(--color-surface)",
         borderRadius: "16px",
-        padding: "20px"
+        padding: "12px"
       }}
     >
       <h3 style={{ marginBottom: "20px" }}>
-        Expense Distribution
+        Category Wise Expense
       </h3>
 
       <ResponsiveContainer width="100%" height="90%">
@@ -45,8 +45,8 @@ export default function CategoryPieChart({ data }) {
             data={data}
             dataKey="amount"
             nameKey="category"
-            innerRadius={70}
-            outerRadius={110}
+            innerRadius={55}
+            outerRadius={95}
             paddingAngle={3}
             cornerRadius={8}
             label

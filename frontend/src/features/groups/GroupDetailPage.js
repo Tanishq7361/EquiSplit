@@ -13,10 +13,22 @@ import styles from './groups.module.css';
 import CategoryPieChart from "../../components/charts/CategoryPieChart";
 
 const TABS = [
-  'Expenses',
-  'Debts',
-  'Settlements',
-  'Members'
+  {
+    label: "Expenses",
+    icon: "📋"
+  },
+  {
+    label: "Debts",
+    icon: "💸"
+  },
+  {
+    label: "Settlements",
+    icon: "🤝"
+  },
+  {
+    label: "Members",
+    icon: "👥"
+  }
 ];
 
 export default function GroupDetailPage() {
@@ -96,25 +108,42 @@ export default function GroupDetailPage() {
           {group.description && <p className={styles.pageSubtitle}>{group.description}</p>}
         </div>
         <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
-          <Button size="sm" variant="secondary" onClick={() => navigate(`/groups/${groupId}/members/add`)}>
-            + Member
-          </Button>
-          <Button size="sm" variant="secondary" onClick={() => navigate(`/groups/${groupId}/expenses/new`)}>
-            + Expense
-          </Button>
-          <Button size="sm" onClick={() => navigate(`/groups/${groupId}/settlements/new`)}>
-            Settle Up
-          </Button>
-          <Button size="sm" variant="secondary" onClick={() => navigate(`/groups/${groupId}/edit`)}>
-            Edit Group
-          </Button>
-          <Button size="sm" variant="danger" onClick={handleDeleteGroup}>
-            Delete Group
-          </Button>
+          <div className={styles.headerActions}>
+            {activeTab !== "Members" && (
+                  <>
+                      <Button
+                          size="sm"
+                          onClick={() =>
+                              navigate(`/groups/${groupId}/members/new`)
+                          }
+                      >
+                          + Member
+                      </Button>
+
+                      <Button
+                          size="sm"
+                          onClick={() =>
+                              navigate(`/groups/${groupId}/expenses/new`)
+                          }
+                      >
+                          + Expense
+                      </Button>
+
+                      <Button
+                          size="sm"
+                          onClick={() =>
+                              navigate(`/groups/${groupId}/settlements/new`)
+                          }
+                      >
+                          Settle Up
+                      </Button>
+                  </>
+              )}
+          </div>
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs
       <div className={styles.tabs}>
         {TABS.map((tab) => (
           <button
@@ -125,15 +154,55 @@ export default function GroupDetailPage() {
             {tab}
           </button>
         ))}
+      </div> */}
+
+      <div className={styles.overviewSection}>
+
+        <div className={styles.leftOverview}>
+
+          <div className={styles.tabsVertical}>
+
+            {TABS.map((tab) => (
+
+                <button
+                    key={tab.label}
+                    className={`${styles.tabCard}
+                    ${
+                        activeTab === tab.label
+                            ? styles.activeTab
+                            : ""
+                    }`}
+                    onClick={() => setActiveTab(tab.label)}
+                >
+
+                    <span className={styles.tabIcon}>
+                        {tab.icon}
+                    </span>
+
+                    <span>
+                        {tab.label}
+                    </span>
+
+                </button>
+
+            ))}
+
+          </div>
+
+        </div>
+
+        <div className={styles.rightOverview}>
+
+          {categoryData.length > 0 && (
+            <CategoryPieChart data={categoryData} />
+          )}
+
+        </div>
+
       </div>
 
       {activeTab === 'Expenses' && (
-        <>
         <ExpensesList expenses={expenses} groupId={groupId} navigate={navigate} />
-        {categoryData.length > 0 && (
-            <CategoryPieChart data={categoryData} />
-        )}
-        </>
       )}
       {activeTab === 'Debts' && (
         <DebtsList debts={debts} />
@@ -142,7 +211,7 @@ export default function GroupDetailPage() {
         <SettlementsList settlements={settlements} groupId={groupId} navigate={navigate} />
       )}
       {activeTab === 'Members' && (
-        <MembersList members={members} balances={balances} groupId={groupId} navigate={navigate} />
+        <MembersList members={members} balances={balances} groupId={groupId} navigate={navigate} handleDeleteGroup={handleDeleteGroup} />
       )}
     </div>
   );
@@ -386,10 +455,39 @@ function SettlementsList({ settlements, groupId, navigate }) {
   );
 }
 
-function MembersList({ members, balances, groupId, navigate }) {
+function MembersList({ members, balances, groupId, navigate, handleDeleteGroup }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+
+      <div className={styles.memberActions}>
+
+      <Button
+          onClick={() =>
+              navigate(`/groups/${groupId}/members/new`)
+          }
+      >
+          + Add Member
+      </Button>
+
+      <Button
+          variant="secondary"
+          onClick={() =>
+              navigate(`/groups/${groupId}/edit`)
+          }
+      >
+          Edit Group
+      </Button>
+
+      <Button
+          variant="danger"
+          onClick={handleDeleteGroup}
+      >
+          Delete Group
+      </Button>
+
+      </div>
+
 
       {members.map((m) => {
 
@@ -400,26 +498,27 @@ function MembersList({ members, balances, groupId, navigate }) {
         const handleRemoveMember = async (userId) => {
 
         const confirmed = window.confirm(
-          "Remove this member?"
-        );
-
-        if (!confirmed) return;
-
-        try {
-
-          await groupsApi.removeMember(
-            groupId,
-            userId
+            "Remove this member?"
           );
 
-          window.location.reload();
+          if (!confirmed) return;
 
-        } catch (err) {
+          try {
 
-          alert(err.message);
+            await groupsApi.removeMember(
+              groupId,
+              userId
+            );
 
-        }
-      };
+            window.location.reload();
+
+          } catch (err) {
+
+            alert(err.message);
+
+          }
+        };
+
 
         return (
 
@@ -491,15 +590,7 @@ function MembersList({ members, balances, groupId, navigate }) {
         );
       })}
 
-      <Button
-        size="sm"
-        variant="secondary"
-        style={{ alignSelf: 'flex-start', marginTop: 'var(--space-4)' }}
-        onClick={() => navigate(`/groups/${groupId}/members/add`)}
-      >
-        + Add member
-      </Button>
-
+      
     </div>
   );
 }

@@ -695,4 +695,23 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .toList();
         }
         
+
+        @Override
+        public List<CategoryExpenseResponse> getOverallCategorySummary(
+                String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        return expenseRepository
+                .getOverallCategorySummary(user.getId())
+                .stream()
+                .map(result ->
+                        CategoryExpenseResponse.builder()
+                                .category(result[0].toString())
+                                .amount((BigDecimal) result[1])
+                                .build())
+                .toList();
+        }
 }
