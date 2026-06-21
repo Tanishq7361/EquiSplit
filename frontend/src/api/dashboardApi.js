@@ -1,8 +1,7 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
 const dashboardApi = {
-    getOutstandingBalance: () =>
-        apiClient.get('/dashboard/outstanding')
+    getDashboard: () => apiClient.get("/dashboard"),
 };
 
 export default dashboardApi;

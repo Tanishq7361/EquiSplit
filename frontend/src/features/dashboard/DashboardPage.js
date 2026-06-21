@@ -16,17 +16,17 @@ export default function DashboardPage() {
   const [groups, setGroups]   = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
-  const [outstandingBalance, setOutstandingBalance] = useState(0);
+  const [dashboard, setDashboard] = useState(null);
 
   const loadGroups = useCallback(async () => {
     try {
-      const [groupsRes, balanceRes] = await Promise.all([
+      const [groupsRes, dashboardRes] = await Promise.all([
           groupsApi.getGroups(),
-          dashboardApi.getOutstandingBalance()
+          dashboardApi.getDashboard()
       ]);
 
       setGroups(groupsRes.data || []);
-      setOutstandingBalance(balanceRes.data || 0);
+      setDashboard(dashboardRes.data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -54,22 +54,29 @@ export default function DashboardPage() {
       <div className={styles.stats}>
         <div className={styles.statCard} style={{ '--accent-color': 'var(--color-accent)' }}>
           <span className={styles.statIcon}>◈</span>
-          <span className={styles.statValue}>{groups.length}</span>
+          <span className={styles.statValue}>{dashboard?.totalGroups ?? 0}</span>
           <span className={styles.statLabel}>Total Groups</span>
         </div>
         <div className={styles.statCard} style={{ '--accent-color': 'var(--color-success)' }}>
           <span className={styles.statIcon}>◈</span>
           <span className={styles.statValue}>
-            {groups.reduce((sum, g) => sum + (g.totalExpenses || 0), 0)}
+            {dashboard?.totalExpenses ?? 0}
           </span>
           <span className={styles.statLabel}>Total Expenses</span>
         </div>
         <div className={styles.statCard} style={{ '--accent-color': 'var(--color-gold)' }}>
           <span className={styles.statIcon}>◈</span>
           <span className={styles.statValue}>
-            {outstandingBalance} $
+            ₹{dashboard?.totalExpenseAmount ?? 0}
           </span>
-          <span className={styles.statLabel}>Net Balance</span>
+          <span className={styles.statLabel}>Total Expense Amount</span>
+        </div>
+        <div className={styles.statCard} style={{ "--accent-color": "var(--color-warning)" }}>
+          <span className={styles.statIcon}>◈</span>
+          <span className={styles.statValue}>
+            {dashboard?.totalSettlements ?? 0}
+          </span>
+          <span className={styles.statLabel}> Total Settlements </span>
         </div>
       </div>
 

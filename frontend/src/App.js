@@ -21,7 +21,7 @@ import GroupsPage       from './features/groups/GroupsPage';
 import CreateGroupPage  from './features/groups/CreateGroupPage';
 import GroupDetailPage  from './features/groups/GroupDetailPage';
 import AddMemberPage    from './features/groups/AddMemberPage';
-
+import EditGroupPage    from "./features/groups/EditGroupPage";
 // Expenses
 import CreateExpensePage from './features/expenses/CreateExpensePage';
 

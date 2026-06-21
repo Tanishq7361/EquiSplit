@@ -10,4 +10,5 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     boolean existsByGroupAndPaidBy(Group group, User user);
     List<Expense> findByGroup(Group group);
     void deleteByGroup(Group group);
+    List<Expense> findByPaidBy(User user);
 }

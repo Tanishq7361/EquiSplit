@@ -21,7 +21,6 @@ public interface GroupService {
     void deleteGroup(Long groupId,String userEmail);
     List<GroupSummaryResponse> getMyGroups(String userEmail);
     GroupDetailsResponse getGroupDetails(Long groupId, String userEmail);
-
     List<GroupMemberResponse> getGroupMembers(
         Long groupId,
         String userEmail

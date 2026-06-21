@@ -14,4 +14,5 @@ public interface SettlementRepository
     boolean existsByGroupAndPayer(Group group, User user);
     boolean existsByGroupAndReceiver(Group group, User user);
     void deleteByGroup(Group group);
+    List<Settlement> findByPayer(User payer);
 }

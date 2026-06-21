@@ -376,10 +376,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                                 .subtract(owes)
                                 .add(sentSettlements)
                                 .subtract(receivedSettlements);
-                        
-                        // java.math.BigDecimal remainingOwes = owes
-                        //         .subtract(sentSettlements)
-                        //         .add(receivedSettlements);
+
                         return BalanceResponse.builder()
                                 .userName(memberUser.getName())
                                 .paid(paid)

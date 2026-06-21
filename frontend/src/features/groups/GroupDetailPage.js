@@ -101,8 +101,8 @@ export default function GroupDetailPage() {
           <Button size="sm" onClick={() => navigate(`/groups/${groupId}/settlements/new`)}>
             Settle Up
           </Button>
-          <Button variant="secondary" onClick={() => navigate(`/groups/${groupId}/edit`)}>
-            ✏️ Edit Group
+          <Button size="sm" variant="secondary" onClick={() => navigate(`/groups/${groupId}/edit`)}>
+            Edit Group
           </Button>
           <Button size="sm" variant="danger" onClick={handleDeleteGroup}>
             Delete Group
