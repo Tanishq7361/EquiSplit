@@ -11,7 +11,7 @@ import Alert from '../../components/common/Alert';
 import { PageLoader } from '../../components/common/Spinner';
 import styles from '../groups/groups.module.css';
 
-const INITIAL = { receiverId: '', amount: '', notes: '' };
+const INITIAL = { payerId: '', receiverId: '', amount: '', description: '' };
 
 export default function CreateSettlementPage() {
   const { groupId } = useParams();
@@ -35,11 +35,18 @@ export default function CreateSettlementPage() {
   useEffect(() => { load(); }, [load]);
 
   const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
-    useForm(INITIAL, validateSettlement);
+      useForm(INITIAL, validateSettlement);
 
-  const memberOptions = members.map((m) => ({
-    value: m.id || m.email,
-    label: m.name || m.email,
+  const payerOptions = members.map((m) => ({
+    value: m.id,
+    label: m.name,
+  }));
+
+  const receiverOptions = members
+    .filter((m) => Number(m.id) !== Number(values.payerId))
+    .map((m) => ({
+      value: m.id,
+      label: m.name,
   }));
 
   const onSubmit = async (vals) => {
@@ -47,8 +54,10 @@ export default function CreateSettlementPage() {
     setError(null);
     try {
       await settlementsApi.createSettlement(groupId, {
+          payerId: Number(vals.payerId),
           receiverId: Number(vals.receiverId),
-          amount: parseFloat(vals.amount)
+          amount: parseFloat(vals.amount),
+          description: vals.description
       });
       navigate(`/groups/${groupId}`);
     } catch (err) {
@@ -74,9 +83,20 @@ export default function CreateSettlementPage() {
 
         <form className={styles.formFields} onSubmit={handleSubmit(onSubmit)} noValidate>
           <Select
+            label="Payer"
+            name="payerId"
+            options={payerOptions}
+            placeholder="Select Payer"
+            value={values.payerId}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.payerId && errors.payerId}
+          />
+
+          <Select
             label="Who received?"
             name="receiverId"
-            options={memberOptions}
+            options={receiverOptions}
             placeholder="Select receiver"
             value={values.receiverId}
             onChange={handleChange}
@@ -96,11 +116,10 @@ export default function CreateSettlementPage() {
             error={touched.amount && errors.amount}
           />
           <Input
-            label="Notes (optional)"
-            name="notes"
-            placeholder="Cash, bank transfer…"
-            value={values.notes}
-            onChange={handleChange}
+              label="Description(Optional)"
+              name="description"
+              value={values.description}
+              onChange={handleChange}
           />
 
           <div className={styles.formActions}>

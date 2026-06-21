@@ -36,4 +36,7 @@ public class Settlement {
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    @Column(length = 255)
+    private String description;
 }

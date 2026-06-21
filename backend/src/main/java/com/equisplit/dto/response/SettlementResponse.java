@@ -13,7 +13,7 @@ public class SettlementResponse {
     private Long id;
 
     private String payerName;
-
+    private String description;
     private String receiverName;
     private OffsetDateTime createdAt;
     private BigDecimal amount;

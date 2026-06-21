@@ -58,10 +58,22 @@ export function validateExpense(values) {
 }
 
 export function validateSettlement(values) {
-  return {
-    receiverId:    validators.required(values.receiverId),
-    amount:     validators.positiveNumber(values.amount),
+
+  const errors = {
+    payerId: validators.required(values.payerId),
+    receiverId: validators.required(values.receiverId),
+    amount: validators.positiveNumber(values.amount),
   };
+
+  if (
+    values.payerId &&
+    values.receiverId &&
+    Number(values.payerId) === Number(values.receiverId)
+  ) {
+    errors.receiverId = "Payer and receiver cannot be the same.";
+  }
+
+  return errors;
 }
 
 export function validateMember(values) {

@@ -33,15 +33,15 @@ public class SettlementServiceImpl implements SettlementService {
             CreateSettlementRequest request,
             String userEmail) {
 
-        User payer = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User payer = userRepository.findById(request.getPayerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Payer not found"));
 
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         groupMemberRepository.findByGroupAndUser(group, payer)
                 .orElseThrow(() ->
-                        new UnauthorizedActionException("You are not a member of this group"));
+                        new UnauthorizedActionException("Payer is not a member of this group"));
 
         User receiver = userRepository.findById(request.getReceiverId())
                 .orElseThrow(() ->
@@ -56,6 +56,7 @@ public class SettlementServiceImpl implements SettlementService {
                 .payer(payer)
                 .receiver(receiver)
                 .amount(request.getAmount())
+                .description(request.getDescription())
                 .createdAt(OffsetDateTime.now())
                 .build();
 
@@ -67,6 +68,7 @@ public class SettlementServiceImpl implements SettlementService {
                 .receiverName(receiver.getName())
                 .amount(savedSettlement.getAmount())
                 .createdAt(settlement.getCreatedAt())
+                .description(settlement.getDescription())
                 .build();
     }
 

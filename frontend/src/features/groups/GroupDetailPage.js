@@ -333,8 +333,19 @@ function SettlementsList({ settlements, groupId, navigate }) {
           <div className={styles.settlementIcon}>✓</div>
           <div className={styles.settlementInfo}>
             <div className={styles.settlementText}>
-              <strong>{s.payerName}</strong>{" -> "}<strong>{s.receiverName}</strong>
+              <strong>{s.payerName}</strong>{" → "}<strong>{s.receiverName}</strong>
             </div>
+            {s.description && (
+              <div
+                style={{
+                  color: "#cbd5e1",
+                  fontSize: "0.9rem",
+                  marginTop: "4px"
+                }}
+              >
+                {s.description}
+              </div>
+            )}
             <div className={styles.settlementDate}>{formatDateTime(s.createdAt)}</div>
           </div>
             <div
