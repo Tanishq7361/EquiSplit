@@ -76,6 +76,18 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         var members = groupMemberRepository.findByGroup(group);
 
+        members = members.stream()
+                .filter(member ->
+                        request.getParticipantIds()
+                                .contains(member.getUser().getId()))
+                .toList();
+
+        if (members.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Select at least one participant."
+                );
+        }
+
         switch (request.getSplitType()) {
 
         case "EQUAL" -> {
@@ -181,6 +193,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 "Invalid split type"
         );
         }
+        
 
         return ExpenseResponse.builder()
                 .id(savedExpense.getId())

@@ -26,4 +26,6 @@ public class CreateExpenseRequest {
     private String splitType;
 
     private List<SplitRequest> splits;
+    
+    private List<Long> participantIds;
 }

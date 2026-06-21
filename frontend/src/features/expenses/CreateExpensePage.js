@@ -120,6 +120,7 @@ export default function CreateExpensePage() {
     try {
       await expensesApi.createExpense(groupId, {
         ...vals,
+        participantIds: participants,
         amount: parseFloat(vals.amount),
 
         splits:
