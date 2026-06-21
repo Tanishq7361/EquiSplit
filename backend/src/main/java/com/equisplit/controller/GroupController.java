@@ -4,6 +4,7 @@ import com.equisplit.dto.response.GroupSummaryResponse;
 import java.util.List;
 import com.equisplit.dto.response.GroupDetailsResponse;
 import com.equisplit.dto.request.CreateGroupRequest;
+import com.equisplit.dto.request.UpdateGroupRequest;
 import com.equisplit.dto.response.GroupMemberResponse;
 import com.equisplit.dto.response.GroupResponse;
 import com.equisplit.service.GroupService;
@@ -109,5 +110,20 @@ public class GroupController {
         );
 
         return ResponseEntity.noContent().build();
+        }
+
+        @PutMapping("/{groupId}")
+        public ResponseEntity<GroupResponse> updateGroup(
+                @PathVariable Long groupId,
+                @RequestBody @Valid UpdateGroupRequest request,
+                Authentication authentication) {
+
+        return ResponseEntity.ok(
+                groupService.updateGroup(
+                        groupId,
+                        request,
+                        authentication.getName()
+                )
+        );
         }
 }

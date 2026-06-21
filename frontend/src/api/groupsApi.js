@@ -8,6 +8,7 @@ const groupsApi = {
   getMembers:   (groupId)           => apiClient.get(`/groups/${groupId}/members`),
   removeMember: (groupId, userId)   => apiClient.delete( `/groups/${groupId}/members/${userId}`),
   deleteGroup:  (groupId)           => apiClient.delete(`/groups/${groupId}`),
+  updateGroup:  (groupId, data)     => apiClient.put(`/groups/${groupId}`, data),
 };
 
 

@@ -59,6 +59,7 @@ export default function App() {
               <Route path="/groups/:groupId/expenses/new"                 element={<CreateExpensePage />} />
               <Route path="/groups/:groupId/settlements/new"              element={<CreateSettlementPage />} />
               <Route path="/groups/:groupId/expenses/:expenseId/edit"     element={<EditExpensePage />} />
+              <Route path="/groups/:groupId/edit"                         element={<EditGroupPage />} />
             </Route>
 
             {/* Fallback */}

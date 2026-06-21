@@ -27,8 +27,8 @@ public class SettlementServiceImpl implements SettlementService {
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
 
-    @Override
-    public SettlementResponse createSettlement(
+        @Override
+        public SettlementResponse createSettlement(
             Long groupId,
             CreateSettlementRequest request,
             String userEmail) {
@@ -72,7 +72,7 @@ public class SettlementServiceImpl implements SettlementService {
                 .build();
     }
 
-    @Override
+        @Override
         public List<SettlementSummaryResponse> getGroupSettlements(
                 Long groupId,
                 String userEmail) {
@@ -95,6 +95,7 @@ public class SettlementServiceImpl implements SettlementService {
                         .receiverName(settlement.getReceiver().getName())
                         .amount(settlement.getAmount())
                         .createdAt(settlement.getCreatedAt())
+                        .description(settlement.getDescription())  
                         .build())
                 .toList();
         }

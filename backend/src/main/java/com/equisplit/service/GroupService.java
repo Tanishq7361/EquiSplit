@@ -1,6 +1,7 @@
 package com.equisplit.service;
 
 import com.equisplit.dto.request.CreateGroupRequest;
+import com.equisplit.dto.request.UpdateGroupRequest;
 import com.equisplit.dto.response.GroupResponse;
 import com.equisplit.dto.response.GroupSummaryResponse;
 import com.equisplit.dto.response.GroupMemberResponse;
@@ -23,6 +24,11 @@ public interface GroupService {
 
     List<GroupMemberResponse> getGroupMembers(
         Long groupId,
+        String userEmail
+    );
+    GroupResponse updateGroup(
+        Long groupId,
+        UpdateGroupRequest request,
         String userEmail
     );
 }

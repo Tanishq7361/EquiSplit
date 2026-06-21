@@ -2,6 +2,7 @@ package com.equisplit.service.impl;
 import com.equisplit.dto.response.GroupSummaryResponse;
 import java.util.List;
 import com.equisplit.dto.request.CreateGroupRequest;
+import com.equisplit.dto.request.UpdateGroupRequest;
 import com.equisplit.dto.response.GroupResponse;
 import com.equisplit.entity.Expense;
 import com.equisplit.entity.Group;
@@ -292,5 +293,37 @@ public class GroupServiceImpl implements GroupService {
         groupMemberRepository.deleteByGroup(group);
 
         groupRepository.delete(group);
+        }
+
+        @Override
+        public GroupResponse updateGroup(
+                Long groupId,
+                UpdateGroupRequest request,
+                String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Group not found"));
+
+        if (!group.getCreatedBy().getId().equals(user.getId())) {
+                throw new UnauthorizedActionException(
+                        "Only the group owner can edit the group."
+                );
+        }
+
+        group.setName(request.getName());
+        group.setDescription(request.getDescription());
+
+        Group updated = groupRepository.save(group);
+
+        return GroupResponse.builder()
+                .id(updated.getId())
+                .name(updated.getName())
+                .description(updated.getDescription())
+                .build();
         }
 }

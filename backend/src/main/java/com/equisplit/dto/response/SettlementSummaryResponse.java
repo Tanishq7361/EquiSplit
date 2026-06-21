@@ -15,4 +15,5 @@ public class SettlementSummaryResponse {
     private String receiverName;
     private BigDecimal amount;
     private OffsetDateTime createdAt;
+    private String description;
 }
