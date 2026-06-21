@@ -3,6 +3,7 @@ package com.equisplit.controller;
 import com.equisplit.dto.request.CreateExpenseRequest;
 import com.equisplit.dto.request.UpdateExpenseRequest;
 import com.equisplit.dto.response.BalanceResponse;
+import com.equisplit.dto.response.CategoryExpenseResponse;
 import com.equisplit.dto.response.ExpenseSummaryResponse;
 
 import java.math.BigDecimal;
@@ -130,6 +131,20 @@ public class ExpenseController {
                 expenseService.getExpense(
                         groupId,
                         expenseId,
+                        authentication.getName()
+                )
+        );
+        }
+
+        @GetMapping("/category-summary")
+        public ResponseEntity<List<CategoryExpenseResponse>>
+        getCategorySummary(
+                @PathVariable Long groupId,
+                Authentication authentication) {
+
+        return ResponseEntity.ok(
+                expenseService.getCategorySummary(
+                        groupId,
                         authentication.getName()
                 )
         );

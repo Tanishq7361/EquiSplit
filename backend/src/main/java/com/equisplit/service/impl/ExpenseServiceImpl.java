@@ -21,6 +21,8 @@ import com.equisplit.dto.response.ExpenseSplitResponse;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import com.equisplit.dto.response.BalanceResponse;
+import com.equisplit.dto.response.CategoryExpenseResponse;
+
 import java.util.List;
 import com.equisplit.entity.Settlement;
 import com.equisplit.repository.SettlementRepository;
@@ -658,5 +660,39 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
         }
 
+
+        @Override
+        public List<CategoryExpenseResponse> getCategorySummary(
+                Long groupId,
+                String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "User not found"
+                        ));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Group not found"
+                        ));
+
+        groupMemberRepository.findByGroupAndUser(group, user)
+                .orElseThrow(() ->
+                        new UnauthorizedActionException(
+                                "You are not a member of this group"
+                        ));
+
+        return expenseRepository
+                .getCategorySummary(groupId)
+                .stream()
+                .map(result ->
+                        CategoryExpenseResponse.builder()
+                                .category((String) result[0])
+                                .amount((BigDecimal) result[1])
+                                .build())
+                .toList();
+        }
         
 }

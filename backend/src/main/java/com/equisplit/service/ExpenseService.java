@@ -5,6 +5,7 @@ import com.equisplit.dto.request.UpdateExpenseRequest;
 import com.equisplit.dto.response.ExpenseResponse;
 import com.equisplit.dto.response.ExpenseSummaryResponse;
 import com.equisplit.dto.response.BalanceResponse;
+import com.equisplit.dto.response.CategoryExpenseResponse;
 import com.equisplit.dto.response.DebtResponse;
 
 import java.math.BigDecimal;
@@ -49,6 +50,11 @@ public interface ExpenseService {
     ExpenseSummaryResponse getExpense(
             Long groupId,
             Long expenseId,
+            String userEmail
+    );
+
+    List<CategoryExpenseResponse> getCategorySummary(
+            Long groupId,
             String userEmail
     );
 }

@@ -10,6 +10,7 @@ import EmptyState from '../../components/common/EmptyState';
 import { Avatar } from '../../components/common/Avatar';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import styles from './groups.module.css';
+import CategoryPieChart from "../../components/charts/CategoryPieChart";
 
 const TABS = [
   'Expenses',
@@ -31,17 +32,19 @@ export default function GroupDetailPage() {
   const [settlements, setSettlements]   = useState([]);
   const [loading, setLoading]           = useState(true);
   const [error, setError]               = useState(null);
+  const [categoryData, setCategoryData] = useState([]);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const [gRes, mRes, eRes, bRes, dRes, sRes] = await Promise.all([
+      const [gRes, mRes, eRes, bRes, dRes, sRes, cRes] = await Promise.all([
           groupsApi.getGroup(groupId),
           groupsApi.getMembers(groupId),
           expensesApi.getExpenses(groupId),
           expensesApi.getBalances(groupId),
           expensesApi.getDebts(groupId),
           settlementsApi.getSettlements(groupId),
+          expensesApi.getCategorySummary(groupId),
       ]);
       setGroup(gRes.data);
       setMembers(mRes.data || []);
@@ -49,6 +52,7 @@ export default function GroupDetailPage() {
       setBalances(bRes.data || []);
       setDebts(dRes.data || []);
       setSettlements(sRes.data || []);
+      setCategoryData(cRes.data || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -124,7 +128,12 @@ export default function GroupDetailPage() {
       </div>
 
       {activeTab === 'Expenses' && (
+        <>
         <ExpensesList expenses={expenses} groupId={groupId} navigate={navigate} />
+        {categoryData.length > 0 && (
+            <CategoryPieChart data={categoryData} />
+        )}
+        </>
       )}
       {activeTab === 'Debts' && (
         <DebtsList debts={debts} />
@@ -289,7 +298,7 @@ function DebtsList({ debts }) {
             <strong>{debt.fromUser}</strong> {"-->"} <strong>{debt.toUser}</strong>
           </div>
           <div className={styles.pending}>
-            🛑 {formatCurrency(debt.amount)}
+            ⚠️❗{formatCurrency(debt.amount)}
           </div>
         </div>
 

@@ -23,6 +23,8 @@ const expensesApi = {
       );
   },
 
+  getCategorySummary: (groupId) =>
+    apiClient.get(`/groups/${groupId}/expenses/category-summary`),
   
 };
 
