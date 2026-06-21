@@ -33,11 +33,15 @@ export default function CreateExpensePage() {
   const [submitting, setSubmitting]         = useState(false);
   const [error, setError]                   = useState(null);
   const [splits, setSplits] = useState([]);
+  const [participants, setParticipants] = useState([]);
 
   const load = useCallback(async () => {
     try {
       const { data } = await groupsApi.getMembers(groupId);
       setMembers(data || []);
+      setParticipants(
+        (data || []).map(member => member.id)
+      );
       setSplits(
         (data || []).map(member => ({
           userId: member.id,
@@ -60,6 +64,14 @@ export default function CreateExpensePage() {
     value: m.id,
     label: m.name,
   }));
+
+  const toggleParticipant = (userId) => {
+    setParticipants(prev =>
+      prev.includes(userId)
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
 
   const updateSplit = (userId, value) => {
     setSplits(prev =>
@@ -190,6 +202,38 @@ export default function CreateExpensePage() {
             error={touched.paidBy && errors.paidBy}
           />
 
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontWeight: "600"
+              }}
+            >
+              Participants
+            </label>
+
+            {members.map(member => (
+              <label
+                key={member.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  marginBottom: "8px"
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={participants.includes(member.id)}
+                  onChange={() => toggleParticipant(member.id)}
+                />
+
+                {member.name}
+              </label>
+            ))}
+          </div>
+
           <Select
             label="Split type"
             name="splitType"
@@ -208,7 +252,9 @@ export default function CreateExpensePage() {
                   0
                 )}
               </p>
-              {members.map(member => (
+              {members
+                .filter(member => participants.includes(member.id))
+                .map(member => (
                 <Input
                   key={member.id}
                   label={member.name}
@@ -236,7 +282,9 @@ export default function CreateExpensePage() {
                   0
                 )}%
               </p>
-              {members.map(member => (
+              {members
+                .filter(member => participants.includes(member.id))
+                .map(member => (
                 <Input
                   key={member.id}
                   label={`${member.name} (%)`}
