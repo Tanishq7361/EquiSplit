@@ -4,6 +4,7 @@ import com.equisplit.dto.request.CreateExpenseRequest;
 import com.equisplit.dto.request.UpdateExpenseRequest;
 import com.equisplit.dto.response.ExpenseResponse;
 import com.equisplit.dto.response.ExpenseSummaryResponse;
+import com.equisplit.dto.response.MonthlyExpenseResponse;
 import com.equisplit.dto.response.BalanceResponse;
 import com.equisplit.dto.response.CategoryExpenseResponse;
 import com.equisplit.dto.response.DebtResponse;
@@ -60,5 +61,9 @@ public interface ExpenseService {
 
     List<CategoryExpenseResponse> getOverallCategorySummary(
             String userEmail
+    );
+    List<MonthlyExpenseResponse>
+    getMonthlyExpenseSummary(
+            String email
     );
 }

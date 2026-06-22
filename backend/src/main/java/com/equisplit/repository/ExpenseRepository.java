@@ -37,4 +37,25 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Object[]> getOverallCategorySummary(
             @Param("userId") Long userId
     );
+
+    @Query("""
+    SELECT
+    FUNCTION('TO_CHAR', e.createdAt, 'Mon'),
+    SUM(e.amount)
+    FROM Expense e
+    WHERE e.group IN (
+        SELECT gm.group
+        FROM GroupMember gm
+        WHERE gm.user.email = :email
+    )
+    GROUP BY
+    FUNCTION('TO_CHAR', e.createdAt, 'Mon'),
+    FUNCTION('DATE_TRUNC','month',e.createdAt)
+    ORDER BY
+    FUNCTION('DATE_TRUNC','month',e.createdAt)
+    """)
+    List<Object[]> getMonthlyExpenseSummary(
+            @Param("email")
+            String email
+    );
 }

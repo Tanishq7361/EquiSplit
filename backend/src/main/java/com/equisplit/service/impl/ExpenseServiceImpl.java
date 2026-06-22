@@ -27,6 +27,8 @@ import java.util.List;
 import com.equisplit.entity.Settlement;
 import com.equisplit.repository.SettlementRepository;
 import com.equisplit.dto.response.ExpenseSummaryResponse;
+import com.equisplit.dto.response.MonthlyExpenseResponse;
+
 import org.springframework.transaction.annotation.Transactional;
 import com.equisplit.dto.response.DebtResponse;
 import com.equisplit.dto.request.UpdateExpenseRequest;
@@ -724,5 +726,31 @@ public class ExpenseServiceImpl implements ExpenseService {
                                 .amount((BigDecimal) result[1])
                                 .build())
                 .toList();
+        }
+
+        @Override
+        public List<MonthlyExpenseResponse>
+        getMonthlyExpenseSummary(
+                String email
+        ) {
+
+        return expenseRepository
+                .getMonthlyExpenseSummary(email)
+                .stream()
+                .map(row ->
+
+                        MonthlyExpenseResponse.builder()
+
+                                .month((String) row[0])
+
+                                .totalAmount(
+                                        (BigDecimal) row[1]
+                                )
+
+                                .build()
+
+                )
+                .toList();
+
         }
 }

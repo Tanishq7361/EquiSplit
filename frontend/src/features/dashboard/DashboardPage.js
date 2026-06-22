@@ -10,6 +10,7 @@ import { AvatarGroup } from '../../components/common/Avatar';
 import styles from './Dashboard.module.css';
 import dashboardApi from '../../api/dashboardApi';
 import CategoryPieChart from "../../components/charts/CategoryPieChart";
+import MonthlyBarChart from "../../components/charts/MonthlyBarChart";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -19,22 +20,26 @@ export default function DashboardPage() {
   const [error, setError]     = useState(null);
   const [dashboard, setDashboard] = useState(null);
   const [categoryData, setCategoryData] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
 
   const loadGroups = useCallback(async () => {
     try {
      const [
           groupsRes,
           dashboardRes,
-          categoryRes
+          categoryRes,
+          monthlyRes
       ] = await Promise.all([
           groupsApi.getGroups(),
           dashboardApi.getDashboard(),
-          dashboardApi.getCategorySummary()
+          dashboardApi.getCategorySummary(),
+          dashboardApi.getMonthlySummary()
       ]);
 
       setGroups(groupsRes.data || []);
       setDashboard(dashboardRes.data);
       setCategoryData(categoryRes.data || []);
+      setMonthlyData(monthlyRes.data || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -84,6 +89,9 @@ export default function DashboardPage() {
           </div>
           <div className={styles.chartSection}>
               <CategoryPieChart data={categoryData} />
+          </div>
+          <div className={styles.chartSection}>
+              <MonthlyBarChart data={monthlyData} />
           </div>
       </div>
 
