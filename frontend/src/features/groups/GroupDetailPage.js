@@ -273,7 +273,7 @@ function ExpensesList({ expenses, groupId, navigate }) {
             <div
                 style={{
                     fontSize: "0.8rem",
-                    color: "#94a3b8",
+                    color: "var(--color-text-muted)",
                     marginTop: "4px"
                 }}
             >
@@ -282,9 +282,9 @@ function ExpensesList({ expenses, groupId, navigate }) {
               {expandedExpense === exp.id && (
               <div
                 style={{
-                  marginTop: '10px',
-                  fontSize: '0.9rem',
-                  color: '#cbd5e1'
+                    marginTop: "10px",
+                    fontSize: "0.9rem",
+                    color: "var(--color-text-secondary)"
                 }}
               >
                 <div>
@@ -314,6 +314,7 @@ function ExpensesList({ expenses, groupId, navigate }) {
             </div>
 
             <button
+              className={styles.editBtn}
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/groups/${groupId}/expenses/${exp.id}/edit`);
@@ -419,9 +420,9 @@ function SettlementsList({ settlements, groupId, navigate }) {
             {s.description && (
               <div
                 style={{
-                  color: "#cbd5e1",
-                  fontSize: "0.9rem",
-                  marginTop: "4px"
+                    color: "var(--color-text-secondary)",
+                    fontSize: "0.9rem",
+                    marginTop: "4px"
                 }}
               >
                 {s.description}

@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from "../../context/ThemeContext";
 import { Avatar } from '../common/Avatar';
 import styles from './AppLayout.module.css';
+import { FiMoon, FiSun } from "react-icons/fi";
+import { FaBalanceScale } from "react-icons/fa";
+import { HiScale } from "react-icons/hi";
+import { GiWeightScale } from "react-icons/gi";
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: '⬡' },
@@ -11,6 +16,7 @@ const NAV_ITEMS = [
 
 export default function AppLayout() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -31,7 +37,7 @@ export default function AppLayout() {
       {/* Sidebar */}
       <aside className={`${styles.sidebar} ${sidebarOpen ? styles.open : ''}`}>
         <NavLink to="/dashboard" className={styles.logo} onClick={closeSidebar}>
-          <div className={styles.logoIcon}>⚖</div>
+          <div className={styles.logoIcon}><FaBalanceScale size={16}/></div>
           <span className={styles.logoText}>Equi<span>Split</span></span>
         </NavLink>
 
@@ -76,7 +82,22 @@ export default function AppLayout() {
           >
             ☰
           </button>
-          <span className={styles.pageTitle}>EquiSplit</span>
+
+          <span className={styles.pageTitle}>
+            EquiSplit
+          </span>
+
+          <button
+            className={styles.themeToggle}
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+          >
+            {theme === "dark"
+              ? <FiSun size={18}/>
+              : <FiMoon size={18}/>
+            }
+          </button>
+
         </header>
 
         <main className={styles.content}>

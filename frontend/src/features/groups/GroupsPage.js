@@ -54,11 +54,28 @@ export default function GroupsPage() {
         <div className={styles.list}>
           {groups.map((group) => (
             <Link key={group.id} to={`/groups/${group.id}`} className={styles.listItem}>
-              <div className={styles.listItemMain}>
-                <div className={styles.listItemName}>{group.name}</div>
-                {group.description && (
-                  <div className={styles.listItemDesc}>{group.description}</div>
-                )}
+              <div className={styles.groupLeft}>
+                  <div className={styles.groupAvatar}>
+                      {group.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className={styles.listItemMain}>
+                      <div className={styles.listItemName}>
+                          {group.name}
+                      </div>
+                      {group.description && (
+                          <div className={styles.listItemDesc}>
+                            <div className={styles.groupStats}>
+                                <span>
+                                    👥 {group.memberCount}
+                                </span>
+                                <span>
+                                    💸 {group.totalExpenses}
+                                </span>
+                            </div>
+                              {group.description}
+                          </div>
+                      )}
+                  </div>
               </div>
               <div className={styles.listItemRight}>
                 <AvatarGroup

@@ -111,7 +111,11 @@ export default function CategoryPieChart({ data }) {
                 >{item.category}</span>
               </div>
 
-              <strong>
+              <strong
+                style={{
+                    fontSize:"12px"
+                  }}
+              >
                 ₹{Number(item.amount).toFixed(2)}
               </strong>
             </div>
