@@ -32,6 +32,43 @@ export default function Input({
           name={name}
           onWheel={(e) => e.preventDefault()}
           onKeyDown={(e) => {
+            if (props.inputMode === "decimal") {
+
+              // Allow Ctrl/Cmd shortcuts
+              if (e.ctrlKey || e.metaKey) {
+                props.onKeyDown?.(e);
+                return;
+              }
+
+              const allowedKeys = [
+                "Backspace",
+                "Delete",
+                "ArrowLeft",
+                "ArrowRight",
+                "ArrowUp",
+                "ArrowDown",
+                "Tab",
+                "Home",
+                "Enter",
+                "End",
+                "."
+              ];
+
+              if (
+                e.key === "." &&
+                e.target.value.includes(".")
+              ) {
+                e.preventDefault();
+                return;
+              }
+
+              if (
+                !allowedKeys.includes(e.key) &&
+                !/^[0-9]$/.test(e.key)
+              ) {
+                e.preventDefault();
+              }
+            }
             if (
               props.type === "number" &&
               (e.key === "ArrowUp" || e.key === "ArrowDown")

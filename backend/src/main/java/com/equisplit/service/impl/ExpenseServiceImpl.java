@@ -43,7 +43,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
 
-    @Override
+        @Override
         @Transactional
         public ExpenseResponse createExpense(
                 Long groupId,
@@ -204,7 +204,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .description(savedExpense.getDescription())
                 .paidBy(payer.getName())
                 .build();
-    }
+        }
 
 
 
@@ -573,13 +573,19 @@ public class ExpenseServiceImpl implements ExpenseService {
                 UpdateExpenseRequest request,
                 Group group) {
 
-        var members = groupMemberRepository.findByGroup(group);
-
         switch (request.getSplitType()) {
 
                 case "EQUAL" -> {
 
-                int memberCount = members.size();
+                var participants = request.getSplits();
+
+                if (participants == null || participants.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Select at least one participant."
+                );
+                }
+
+                int memberCount = participants.size();
 
                 BigDecimal equalShare = request.getAmount()
                         .divide(
@@ -590,11 +596,16 @@ public class ExpenseServiceImpl implements ExpenseService {
 
                 BigDecimal assigned = BigDecimal.ZERO;
 
-                for (int i = 0; i < members.size(); i++) {
+                for (int i = 0; i < participants.size(); i++) {
+
+                        User user = userRepository.findById(
+                                participants.get(i).getUserId()
+                        ).orElseThrow(() ->
+                                new ResourceNotFoundException("User not found"));
 
                         BigDecimal share;
 
-                        if (i == members.size() - 1) {
+                        if (i == participants.size() - 1) {
                         share = request.getAmount().subtract(assigned);
                         } else {
                         share = equalShare;
@@ -604,7 +615,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                         expenseSplitRepository.save(
                                 ExpenseSplit.builder()
                                         .expense(expense)
-                                        .user(members.get(i).getUser())
+                                        .user(user)
                                         .shareAmount(share)
                                         .build()
                         );

@@ -13,9 +13,17 @@ export const validators = {
     value?.length <= max ? '' : `Must be ${max} characters or fewer`,
 
   positiveNumber: (value) => {
-    const n = parseFloat(value);
-    if (isNaN(n)) return 'Must be a number';
-    return n > 0 ? '' : 'Must be greater than zero';
+    const str = String(value ?? "").trim();
+    if (str === "") {
+      return "Amount is required";
+    }
+    if (!/^\d+(\.\d{1,2})?$/.test(str)) {
+      return "Enter a valid amount";
+    }
+    if (parseFloat(str) <= 0) {
+      return "Amount must be greater than 0";
+    }
+    return "";
   },
 
   compose: (...fns) => (value) => {

@@ -114,7 +114,7 @@ export default function GroupDetailPage() {
                       <Button
                           size="sm"
                           onClick={() =>
-                              navigate(`/groups/${groupId}/members/new`)
+                              navigate(`/groups/${groupId}/members/add`)
                           }
                       >
                           + Member
@@ -464,7 +464,7 @@ function MembersList({ members, balances, groupId, navigate, handleDeleteGroup }
 
       <Button
           onClick={() =>
-              navigate(`/groups/${groupId}/members/new`)
+              navigate(`/groups/${groupId}/members/add`)
           }
       >
           + Add Member

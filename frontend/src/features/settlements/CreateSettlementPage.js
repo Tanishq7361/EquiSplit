@@ -106,9 +106,8 @@ export default function CreateSettlementPage() {
           <Input
             label="Amount"
             name="amount"
-            type="number"
-            min="0.01"
-            step="0.01"
+            type="text"
+            inputMode="decimal"
             placeholder="0.00"
             value={values.amount}
             onChange={handleChange}

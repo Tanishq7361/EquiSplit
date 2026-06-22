@@ -168,9 +168,8 @@ export default function CreateExpensePage() {
           <Input
             label="Amount"
             name="amount"
-            type="number"
-            min="0.01"
-            step="0.01"
+            type="text"
+            inputMode="decimal"
             placeholder="0.00"
             value={values.amount}
             onChange={handleChange}
@@ -259,8 +258,8 @@ export default function CreateExpensePage() {
                 <Input
                   key={member.id}
                   label={member.name}
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="decimal"
                   value={
                     splits.find(s => s.userId === member.id)?.value || ''
                   }
@@ -289,8 +288,8 @@ export default function CreateExpensePage() {
                 <Input
                   key={member.id}
                   label={`${member.name} (%)`}
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="decimal"
                   value={
                     splits.find(s => s.userId === member.id)?.value || ''
                   }

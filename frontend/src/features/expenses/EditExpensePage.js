@@ -33,6 +33,7 @@ export default function EditExpensePage() {
   const [submitting, setSubmitting]         = useState(false);
   const [error, setError]                   = useState(null);
   const [splits, setSplits] = useState([]);
+  const [selectedMembers, setSelectedMembers] = useState([]);
 
   const { values, errors, touched, handleChange, handleBlur, handleSubmit, setValues } = useForm(INITIAL, validateExpense);
 
@@ -51,18 +52,21 @@ export default function EditExpensePage() {
         setMembers(members);
 
         setValues({
-        description: expense.description,
-        amount: expense.amount,
-        category: expense.category,
-        paidByUserId: expense.paidById,
-        splitType: expense.splitType
+          description: expense.description,
+          amount: String(expense.amount),
+          category: expense.category,
+          paidByUserId: expense.paidById,
+          splitType: expense.splitType
         });
 
         setSplits(
-        expense.splits.map(split => ({
-            userId: split.userId,
-            value: split.shareAmount
-        }))
+          expense.splits.map(split => ({
+              userId: split.userId,
+              value: split.shareAmount
+          }))
+        );
+        setSelectedMembers(
+            expense.splits.map(split => split.userId)
         );
 
     } catch (err) {
@@ -88,6 +92,29 @@ export default function EditExpensePage() {
           : split
       )
     );
+  };
+
+  const toggleMember = (userId) => {
+    if (selectedMembers.includes(userId)) {
+      setSelectedMembers(prev =>
+        prev.filter(id => id !== userId)
+      );
+      setSplits(prev =>
+        prev.filter(split => split.userId !== userId)
+      );
+    } else {
+      setSelectedMembers(prev => [
+        ...prev,
+        userId
+      ]);
+      setSplits(prev => [
+        ...prev,
+        {
+          userId,
+          value: ""
+        }
+      ]);
+    }
   };
 
   const onSubmit = async (vals) => {
@@ -120,7 +147,10 @@ export default function EditExpensePage() {
         return;
       }
     }
-
+    if (selectedMembers.length === 0) {
+      setError("Select at least one member.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
 
@@ -134,12 +164,15 @@ export default function EditExpensePage() {
         amount: parseFloat(vals.amount),
 
         splits:
-          vals.splitType === 'EQUAL'
-            ? null
-            : splits.map(split => ({
-                userId: split.userId,
-                value: parseFloat(split.value || 0)
-              }))
+          vals.splitType === "EQUAL"
+              ? selectedMembers.map(id => ({
+                    userId: id,
+                    value: 0
+                }))
+              : splits.map(split => ({
+                    userId: split.userId,
+                    value: parseFloat(split.value || 0)
+                }))
       }
     );
 
@@ -179,9 +212,8 @@ export default function EditExpensePage() {
           <Input
             label="Amount"
             name="amount"
-            type="number"
-            min="0.01"
-            step="0.01"
+            type="text"
+            inputMode="decimal"
             placeholder="0.00"
             value={values.amount}
             onChange={handleChange}
@@ -214,6 +246,38 @@ export default function EditExpensePage() {
             error={touched.paidByUserId && errors.paidByUserId}
           />
 
+          <h4>Included Members</h4>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "12px",
+              marginBottom: "20px"
+            }}
+          >
+            {members.map(member => (
+
+              <label
+                key={member.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedMembers.includes(member.id)}
+                  onChange={() => toggleMember(member.id)}
+                />
+
+                {member.name}
+
+              </label>
+
+            ))}
+          </div>
+
           <Select
             label="Split type"
             name="splitType"
@@ -232,12 +296,14 @@ export default function EditExpensePage() {
                   0
                 )}
               </p>
-              {members.map(member => (
+              {members
+              .filter(member => selectedMembers.includes(member.id))
+              .map(member => (
                 <Input
                   key={member.id}
                   label={member.name}
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="decimal"
                   value={
                     splits.find(s => s.userId === member.id)?.value || ''
                   }
@@ -260,12 +326,14 @@ export default function EditExpensePage() {
                   0
                 )}%
               </p>
-              {members.map(member => (
+              {members
+              .filter(member => selectedMembers.includes(member.id))
+              .map(member => (
                 <Input
                   key={member.id}
                   label={`${member.name} (%)`}
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="decimal"
                   value={
                     splits.find(s => s.userId === member.id)?.value || ''
                   }

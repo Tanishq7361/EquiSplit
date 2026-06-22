@@ -34,64 +34,111 @@ export default function CategoryPieChart({ data }) {
         padding: "12px"
       }}
     >
-      <h3 style={{ marginBottom: "20px" }}>
+      <h4 style={{ marginBottom: "20px" }}>
         Category Wise Expense
-      </h3>
-
-      <ResponsiveContainer width="100%" height="90%">
-        <PieChart>
-
-          <Pie
-            data={data}
-            dataKey="amount"
-            nameKey="category"
-            innerRadius={55}
-            outerRadius={95}
-            paddingAngle={3}
-            cornerRadius={8}
-            label
-          >
-            {data.map((entry, index) => (
-              <Cell
-                key={index}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
-
-          <Tooltip />
-
-          <Legend />
-
-        </PieChart>
-      </ResponsiveContainer>
+      </h4>
 
       <div
         style={{
-          position: "relative",
-          marginTop: "-185px",
-          textAlign: "center",
-          pointerEvents: "none"
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          height: "210px"
         }}
       >
-        <div
-          style={{
-            fontSize: "1.6rem",
-            fontWeight: "bold"
-          }}
-        >
-          ₹{total}
+        <div style={{ width: "55%", height: "100%" }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="amount"
+                nameKey="category"
+                innerRadius={0}
+                outerRadius={90}
+                paddingAngle={1}
+                cornerRadius={2}
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={index}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
 
         <div
           style={{
-            color: "#94a3b8"
+            width: "40%",
+            display: "flex",
+            flexDirection: "column",
+            gap: "14px"
           }}
         >
-          Total
+          {data.map((item, index) => (
+            <div
+              key={item.category}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "3px"
+                }}
+              >
+                <span
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    borderRadius: "50%",
+                    background: COLORS[index % COLORS.length]
+                  }}
+                />
+
+                <span
+                  style={{
+                    fontSize:"12px"
+                  }}
+                >{item.category}</span>
+              </div>
+
+              <strong>
+                ₹{Number(item.amount).toFixed(2)}
+              </strong>
+            </div>
+          ))}
+
+          <hr
+            style={{
+              borderColor: "#334155"
+            }}
+          />
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontWeight: "bold",
+              fontSize: "1rem"
+            }}
+          >
+            <span>Total</span>
+
+            <span>
+              ₹{Number(total).toFixed(2)}
+            </span>
+          </div>
         </div>
       </div>
-
     </div>
   );
 }
