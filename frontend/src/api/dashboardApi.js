@@ -5,7 +5,7 @@ const dashboardApi = {
     getCategorySummary: () =>
         apiClient.get("/dashboard/category-summary"),
     getMonthlySummary() {
-        return api.get("/dashboard/monthly-summary");
+        return apiClient.get("/dashboard/monthly-summary");
     },
 };
 

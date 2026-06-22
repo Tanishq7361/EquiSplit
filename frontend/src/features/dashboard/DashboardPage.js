@@ -62,37 +62,35 @@ export default function DashboardPage() {
         </h1>
         <p className={styles.subtitle}>Here's what's happening across your groups.</p>
       </div>
+      <div className={styles.stats}>
+        <div className={styles.statCard} style={{ '--accent-color': 'var(--color-accent)' }}>
+          <span className={styles.statIcon}>◈</span>
+          <span className={styles.statValue}>{dashboard?.totalGroups ?? 0}</span>
+          <span className={styles.statLabel}>Total Groups</span>
+        </div>
+        <div className={styles.statCard} style={{ '--accent-color': 'var(--color-success)' }}>
+          <span className={styles.statIcon}>◈</span>
+          <span className={styles.statValue}>
+            {dashboard?.totalExpenses ?? 0}
+          </span>
+          <span className={styles.statLabel}>Total Expenses</span>
+        </div>
+        <div className={styles.statCard} style={{ '--accent-color': 'var(--color-gold)' }}>
+          <span className={styles.statIcon}>◈</span>
+          <span className={styles.statValue}>
+            ₹{dashboard?.totalExpenseAmount ?? 0}
+          </span>
+          <span className={styles.statLabel}>Total Expense Amount</span>
+        </div>
+      </div>
 
-      <div className={styles.analyticsSection}>
-          <div className={styles.summarySection}>
-              <div className={styles.stats}>
-                <div className={styles.statCard} style={{ '--accent-color': 'var(--color-accent)' }}>
-                  <span className={styles.statIcon}>◈</span>
-                  <span className={styles.statValue}>{dashboard?.totalGroups ?? 0}</span>
-                  <span className={styles.statLabel}>Total Groups</span>
-                </div>
-                <div className={styles.statCard} style={{ '--accent-color': 'var(--color-success)' }}>
-                  <span className={styles.statIcon}>◈</span>
-                  <span className={styles.statValue}>
-                    {dashboard?.totalExpenses ?? 0}
-                  </span>
-                  <span className={styles.statLabel}>Total Expenses</span>
-                </div>
-                <div className={styles.statCard} style={{ '--accent-color': 'var(--color-gold)' }}>
-                  <span className={styles.statIcon}>◈</span>
-                  <span className={styles.statValue}>
-                    ₹{dashboard?.totalExpenseAmount ?? 0}
-                  </span>
-                  <span className={styles.statLabel}>Total Expense Amount</span>
-                </div>
-              </div>
-          </div>
-          <div className={styles.chartSection}>
-              <CategoryPieChart data={categoryData} />
-          </div>
-          <div className={styles.chartSection}>
-              <MonthlyBarChart data={monthlyData} />
-          </div>
+      <div className={styles.charts}>
+          <CategoryPieChart
+              data={categoryData}
+          />
+          <MonthlyBarChart
+              data={monthlyData}
+          />
       </div>
 
       {error && <Alert variant="error">{error}</Alert>}
