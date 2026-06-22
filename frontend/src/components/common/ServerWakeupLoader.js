@@ -38,7 +38,7 @@ export default function ServerWakeupLoader() {
       </h2>
 
       <p className={styles.subtitle}>
-        Thank
+        Wait a little
       </p>
     </div>
   );
