@@ -98,8 +98,6 @@ React-->>User: Dashboard Updated
 
 # Screenshots
 
-> Add screenshots after deployment.
-
 ### Dashboard
 
 ![Dashboard](docs/dashboard.png)
