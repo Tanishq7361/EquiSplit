@@ -10,6 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.jsonwebtoken.ExpiredJwtException;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -36,17 +38,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authorizationHeader.substring(BEARER_PREFIX.length());
-        String email = jwtService.extractEmail(token);
-        System.out.println("JWT Email = " + email);
+        try {
 
-        if (SecurityContextHolder.getContext().getAuthentication() == null
-                && jwtService.isTokenValid(token, email)) {
-                    System.out.println("Token valid = " + jwtService.isTokenValid(token, email));
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
+            String email = jwtService.extractEmail(token);
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println("Authentication set successfully");
+            if (SecurityContextHolder.getContext().getAuthentication() == null
+                    && jwtService.isTokenValid(token, email)) {
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                email,
+                                null,
+                                Collections.emptyList()
+                        );
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+
+        }
+        catch (ExpiredJwtException e) {
+
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+            response.setContentType("application/json");
+
+            response.getWriter().write("""
+                {
+                    "message":"Token expired"
+                }
+                """);
+
+            return;
         }
 
         filterChain.doFilter(request, response);

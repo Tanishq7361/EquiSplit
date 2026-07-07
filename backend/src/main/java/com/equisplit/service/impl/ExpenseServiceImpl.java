@@ -24,7 +24,6 @@ import com.equisplit.dto.response.BalanceResponse;
 import com.equisplit.dto.response.CategoryExpenseResponse;
 
 import java.util.List;
-import com.equisplit.entity.Settlement;
 import com.equisplit.repository.SettlementRepository;
 import com.equisplit.dto.response.ExpenseSummaryResponse;
 import com.equisplit.dto.response.MonthlyExpenseResponse;
@@ -135,7 +134,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 BigDecimal total = request.getSplits()
                         .stream()
                         .map(split -> split.getValue())
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        .reduce(BigDecimal.ZERO,(a, b) -> a.add(b));
 
                 if (total.compareTo(request.getAmount()) != 0) {
                 throw new IllegalArgumentException(
@@ -164,7 +163,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 BigDecimal totalPercentage = request.getSplits()
                         .stream()
                         .map(split -> split.getValue())
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        .reduce(BigDecimal.ZERO,(a, b) -> a.add(b));
 
                 if (totalPercentage.compareTo(BigDecimal.valueOf(100)) != 0) {
                 throw new IllegalArgumentException(
@@ -338,10 +337,10 @@ public class ExpenseServiceImpl implements ExpenseService {
                                 expenses.stream()
                                         .filter(expense ->
                                                 expense.getPaidBy().getId().equals(memberUser.getId()))
-                                        .map(Expense::getAmount)
+                                        .map(expense -> expense.getAmount())
                                         .reduce(
-                                                java.math.BigDecimal.ZERO,
-                                                java.math.BigDecimal::add
+                                                BigDecimal.ZERO,
+                                                (a, b) -> a.add(b)
                                         );
 
                         java.math.BigDecimal owes =
@@ -352,28 +351,28 @@ public class ExpenseServiceImpl implements ExpenseService {
                                                 split.getUser().getId().equals(memberUser.getId()))
                                         .map(split -> split.getShareAmount())
                                         .reduce(
-                                                java.math.BigDecimal.ZERO,
-                                                java.math.BigDecimal::add
+                                                BigDecimal.ZERO,
+                                                (a, b) -> a.add(b)
                                         );
 
                         java.math.BigDecimal sentSettlements =
                                 settlements.stream()
                                         .filter(settlement ->
                                                 settlement.getPayer().getId().equals(memberUser.getId()))
-                                        .map(Settlement::getAmount)
+                                        .map(settlement -> settlement.getAmount())
                                         .reduce(
-                                                java.math.BigDecimal.ZERO,
-                                                java.math.BigDecimal::add
+                                                BigDecimal.ZERO,
+                                                (a, b) -> a.add(b)
                                         );
 
                         java.math.BigDecimal receivedSettlements =
                                 settlements.stream()
                                         .filter(settlement ->
                                                 settlement.getReceiver().getId().equals(memberUser.getId()))
-                                        .map(Settlement::getAmount)
+                                        .map(settlement -> settlement.getAmount())
                                         .reduce(
-                                                java.math.BigDecimal.ZERO,
-                                                java.math.BigDecimal::add
+                                                BigDecimal.ZERO,
+                                                (a, b) -> a.add(b)
                                         );
 
                         java.math.BigDecimal balance = paid
@@ -454,13 +453,13 @@ public class ExpenseServiceImpl implements ExpenseService {
                                 .filter(balance ->
                                         balance.getUserName().equals(user.getName()))
                                 .findFirst()
-                                .map(BalanceResponse::getBalance)
+                                .map(balance -> balance.getBalance())
                                 .orElse(java.math.BigDecimal.ZERO);
 
                 })
                 .reduce(
-                        java.math.BigDecimal.ZERO,
-                        java.math.BigDecimal::add
+                        BigDecimal.ZERO,
+                        (a, b) -> a.add(b)
                 );
         }
 
@@ -521,8 +520,8 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         List<BigDecimal> creditorAmounts =
                 creditors.stream()
-                        .map(BalanceResponse::getBalance)
-                        .map(BigDecimal::abs)
+                        .map(balance -> balance.getBalance())
+                        .map(amount -> amount.abs())
                         .collect(java.util.stream.Collectors.toList());
 
         List<BigDecimal> debtorAmounts =
