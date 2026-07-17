@@ -16,40 +16,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DashboardController {
 
-    private final DashboardService dashboardService;
-    private final ExpenseService expenseService;
-    
-    @GetMapping
-    public ResponseEntity<DashboardResponse> getDashboard(
-            Authentication authentication) {
+        private final DashboardService dashboardService;
+        private final ExpenseService expenseService;
+        
+        @GetMapping
+        public ResponseEntity<DashboardResponse> getDashboard(Authentication authentication) {
 
-        DashboardResponse response = dashboardService.getDashboard(
-                authentication.getName()
-        );
+                DashboardResponse response = dashboardService.getDashboard(authentication.getName());
+                return ResponseEntity.ok(response);
+        }
 
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/category-summary")
-    public ResponseEntity<List<CategoryExpenseResponse>>
-    getOverallCategorySummary(Authentication authentication) {
-
-        return ResponseEntity.ok(
-                dashboardService.getOverallCategorySummary(
-                        authentication.getName()
-                )
-        );
-    }
+        @GetMapping("/category-summary")
+        public ResponseEntity<List<CategoryExpenseResponse>>getOverallCategorySummary(Authentication authentication) {
+                return ResponseEntity.ok(dashboardService.getOverallCategorySummary(authentication.getName()));
+        }
 
         @GetMapping("/monthly-summary")
-        public ResponseEntity<List<MonthlyExpenseResponse>>
-        getMonthlySummary(
-                Authentication authentication
-        ){
-        return ResponseEntity.ok(
-                expenseService.getMonthlyExpenseSummary(
-                        authentication.getName()
-                )
-        );
+        public ResponseEntity<List<MonthlyExpenseResponse>>getMonthlySummary(Authentication authentication){
+                return ResponseEntity.ok(expenseService.getMonthlyExpenseSummary(authentication.getName()));
         }
 }

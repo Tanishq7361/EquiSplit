@@ -16,34 +16,34 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SettlementController {
 
-    private final SettlementService settlementService;
+        private final SettlementService settlementService;
 
-    @PostMapping
-    public ResponseEntity<SettlementResponse> createSettlement(
-            @PathVariable Long groupId,
-            @Valid @RequestBody CreateSettlementRequest request,
-            Authentication authentication) {
+        @PostMapping
+        public ResponseEntity<SettlementResponse> createSettlement(
+                @PathVariable Long groupId,
+                @Valid @RequestBody CreateSettlementRequest request,
+                Authentication authentication) {
 
-        return ResponseEntity.ok(
-                settlementService.createSettlement(
-                        groupId,
-                        request,
-                        authentication.getName()
-                )
-        );
-    }
+                return ResponseEntity.ok(
+                        settlementService.createSettlement(
+                                groupId,
+                                request,
+                                authentication.getName()
+                        )
+                );
+        }
 
-    @GetMapping
+        @GetMapping
         public ResponseEntity<List<SettlementSummaryResponse>> getGroupSettlements(
                 @PathVariable Long groupId,
                 Authentication authentication) {
 
-        return ResponseEntity.ok(
-                settlementService.getGroupSettlements(
-                        groupId,
-                        authentication.getName()
-                )
-        );
+                return ResponseEntity.ok(
+                        settlementService.getGroupSettlements(
+                                groupId,
+                                authentication.getName()
+                        )
+                );
         }
 
         @DeleteMapping("/{settlementId}")
@@ -52,12 +52,12 @@ public class SettlementController {
                 @PathVariable Long settlementId,
                 Authentication authentication) {
 
-        settlementService.deleteSettlement(
-                groupId,
-                settlementId,
-                authentication.getName()
-        );
+                settlementService.deleteSettlement(
+                        groupId,
+                        settlementId,
+                        authentication.getName()
+                );
 
-        return ResponseEntity.noContent().build();
+                return ResponseEntity.noContent().build();
         }
 }

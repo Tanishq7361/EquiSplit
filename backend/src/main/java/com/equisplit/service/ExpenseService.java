@@ -15,9 +15,9 @@ import java.util.List;
 public interface ExpenseService {
 
     ExpenseResponse createExpense(
-            Long groupId,
-            CreateExpenseRequest request,
-            String userEmail
+        Long groupId,
+        CreateExpenseRequest request,
+        String userEmail
     );
 
     List<BalanceResponse> getGroupBalances(
@@ -54,16 +54,9 @@ public interface ExpenseService {
             String userEmail
     );
 
-    List<CategoryExpenseResponse> getCategorySummary(
-            Long groupId,
-            String userEmail
-    );
+    List<CategoryExpenseResponse> getCategorySummary(Long groupId, String userEmail);
 
-    List<CategoryExpenseResponse> getOverallCategorySummary(
-            String userEmail
-    );
-    List<MonthlyExpenseResponse>
-    getMonthlyExpenseSummary(
-            String email
-    );
+    List<CategoryExpenseResponse> getOverallCategorySummary(String userEmail);
+
+    List<MonthlyExpenseResponse> getMonthlyExpenseSummary(String email);
 }

@@ -19,7 +19,7 @@ A production-inspired expense sharing platform built with Spring Boot and React 
 
 EquiSplit simplifies expense management for trips, roommates, friends, and teams by providing a seamless way to create groups, record shared expenses, calculate balances, and track settlements.
 
-Unlike basic expense trackers, EquiSplit supports multiple split strategies while providing interactive dashboards, analytics, secure authentication, and a responsive modern UI.
+Unlike basic expense trackers, EquiSplit supports multiple split strategies while providing interactive dashboards, analytics, secure authentication.
 
 ---
 
@@ -27,7 +27,7 @@ Unlike basic expense trackers, EquiSplit supports multiple split strategies whil
 
 | Service | URL |
 |----------|-----|
-| 🌐 Frontend | [App](https://equisplit-app.vercel.app/) |
+| 🌐 Live Demo | [App](https://equisplit-app.vercel.app/) |
 | ⚙ Backend API | [Backend](https://equisplit-dqw0.onrender.com/) |
 | ❤️ Health Endpoint | [Health Point](https://equisplit-dqw0.onrender.com/api/health) |
 
@@ -90,8 +90,6 @@ React-->>User: Dashboard Updated
 | Split Types | Equal • Exact Amount • Percentage |
 | Settlement | Record Settlements |
 | Dashboard | Total Groups • Total Expenses • Expense Analytics |
-| Analytics | Category Pie Chart • Monthly Expense Bar Chart |
-| UI | Dark Theme • Light Theme • Responsive Design |
 | Security | JWT Authentication • Route Protection • Input Validation |
 
 ---
@@ -137,10 +135,6 @@ React-->>User: Dashboard Updated
 ✅ Settlement Tracking
 
 ✅ Dashboard Analytics
-
-✅ Dark / Light Theme
-
-✅ Responsive UI
 
 ---
 
@@ -334,39 +328,6 @@ The backend exposes RESTful APIs grouped by resource.
 | Settlements | Record Payments |
 | Dashboard | Analytics & Reports |
 
-# Frontend Architecture
-
-The frontend is built using **React** and follows a component-driven architecture that emphasizes modularity, reusability, and maintainability.
-
-Pages are composed of reusable UI components while API communication is abstracted into dedicated service modules.
-
-```mermaid
-graph TD
-
-A[React Application]
-
-A --> B[Authentication]
-A --> C[Dashboard]
-A --> D[Groups]
-A --> E[Expenses]
-A --> F[Settlements]
-
-B --> G[Auth Context]
-
-C --> H[Charts]
-
-D --> I[Reusable Components]
-
-E --> I
-
-F --> I
-
-I --> J[API Layer]
-
-J --> K[Spring Boot Backend]
-```
-
----
 
 # Client-side Routing
 
@@ -388,23 +349,6 @@ It stores
 - Logout functionality
 
 This avoids unnecessary prop drilling across the application.
-
----
-
-## Local Component State
-
-Feature-specific state is managed using React Hooks.
-
-Examples include
-
-- Form inputs
-- Dashboard analytics
-- Group details
-- Expense lists
-- Loading indicators
-- Error handling
-
-Keeping state close to where it is used improves readability and simplifies maintenance.
 
 ---
 
@@ -430,29 +374,6 @@ This abstraction provides
 - Consistent request handling
 - Automatic JWT attachment
 - Centralized error handling
-
----
-
-# Reusable UI Components
-
-The application is built around reusable components to ensure consistency across the interface.
-
-```
-components/
-
-├── Button
-├── Input
-├── Select
-├── Alert
-├── Avatar
-├── EmptyState
-├── Spinner
-├── ProtectedRoute
-├── CategoryPieChart
-└── MonthlyBarChart
-```
-
-Each component is designed to be reusable, theme-aware, and accessible.
 
 ---
 
@@ -528,13 +449,9 @@ EquiSplit/
 |--------|------------|
 | Backend | Java 21 |
 | Framework | Spring Boot 3 |
-| Frontend | React 19 |
-| Routing | React Router |
 | Authentication | JWT |
 | Database | PostgreSQL |
 | ORM | Spring Data JPA / Hibernate |
-| Charts | Recharts |
-| Styling | CSS Modules |
 | Build Tool | Maven |
 | Deployment | Render |
 | Database Hosting | Neon PostgreSQL |
@@ -642,10 +559,6 @@ npm run build
 
 ---
 
-# License
-
-This project is licensed under the MIT License.
-
 # Engineering Decisions
 
 Building EquiSplit involved more than implementing CRUD APIs. Several architectural and implementation decisions were made to improve maintainability, scalability, and correctness.
@@ -700,24 +613,7 @@ This significantly simplifies
 - reporting
 - future analytics
 
----
-
-## Reusable Component Design
-
-The frontend emphasizes component reusability.
-
-Examples
-
-- Button
-- Input
-- Select
-- Avatar
-- Alert
-- Charts
-- Empty State
-
-Reusable components reduce duplicated code and improve maintainability.
-
+```
 ---
 
 # Security Considerations
@@ -818,28 +714,7 @@ Building EquiSplit provided practical experience with
 - Spring Security
 - JWT Authentication
 - Hibernate Relationships
-- React Hooks
-- Context API
-- Responsive UI Design
-- Financial Data Modeling
-- Component Reusability
 - Production Deployment
-
----
-
-
-# Project Metrics
-
-| Metric                   | Value |
-| ------------------------ | ----: |
-| Java Classes             |   80+ |
-| React Components         |   35+ |
-| REST Endpoints           |   25+ |
-| Database Tables          |     7 |
-| Authentication           |   JWT |
-| Expense Split Algorithms |     3 |
-| Charts                   |     2 |
-| Deployment Platforms     |     3 |
 
 ---
 
@@ -851,19 +726,12 @@ Building EquiSplit provided practical experience with
 
 ✔ Interactive Analytics Dashboard
 
-✔ Responsive User Interface
-
-✔ Dark / Light Theme
-
-✔ Reusable Component Architecture
-
 ✔ Layered Backend Design
 
 ✔ PostgreSQL Relational Data Model
 
 ✔ Financial Precision using BigDecimal
 
-✔ Modern React Architecture
 
 ---
 
@@ -900,13 +768,9 @@ git push origin feature/new-feature
 This project was developed as a practical exploration of modern full-stack software engineering concepts including
 
 - Spring Boot
-- React
 - PostgreSQL
 - JWT Authentication
 - Financial System Design
-- Responsive UI Development
-
-It reflects best practices learned through building real-world applications and continuous iteration.
 
 ---
 
@@ -920,10 +784,6 @@ It reflects best practices learned through building real-world applications and 
 
 ---
 
-<div align="center">
+# License
 
-### ⭐ If you found this project interesting, consider giving it a star.
-
-It motivates me to continue building high-quality open-source software.
-
-</div>
+This project is licensed under the MIT License.

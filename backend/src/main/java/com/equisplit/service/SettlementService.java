@@ -8,18 +8,16 @@ import java.util.List;
 public interface SettlementService {
 
     SettlementResponse createSettlement(
-            Long groupId,
-            CreateSettlementRequest request,
-            String userEmail
-    );
-
-    List<SettlementSummaryResponse> getGroupSettlements(
         Long groupId,
+        CreateSettlementRequest request,
         String userEmail
     );
+
+    List<SettlementSummaryResponse> getGroupSettlements(Long groupId, String userEmail);
 
     void deleteSettlement(
         Long groupId,
         Long settlementId,
-        String userEmail);
+        String userEmail
+    );
 }

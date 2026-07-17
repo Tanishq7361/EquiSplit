@@ -12,8 +12,6 @@ public class UserController {
     @GetMapping("/api/v1/users/me")
     public Map<String, Object> me(Authentication authentication) {
 
-        return Map.of(
-                "email", authentication.getName()
-        );
+        return Map.of("email", authentication.getName());
     }
 }

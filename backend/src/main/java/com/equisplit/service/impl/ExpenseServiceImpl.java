@@ -402,8 +402,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         groupMemberRepository.findByGroupAndUser(group, user)
-                .orElseThrow(() ->
-                        new UnauthorizedActionException("You are not a member of this group"));
+                .orElseThrow(() -> new UnauthorizedActionException("You are not a member of this group"));
 
         return expenseRepository.findByGroup(group)
                 .stream()
@@ -471,26 +470,18 @@ public class ExpenseServiceImpl implements ExpenseService {
                 String userEmail) {
 
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         Expense expense = expenseRepository.findById(expenseId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Expense not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
 
         groupMemberRepository.findByGroupAndUser(group, user)
-                .orElseThrow(() ->
-                        new UnauthorizedActionException(
-                                "You are not a member of this group"
-                        ));
+                .orElseThrow(() -> new UnauthorizedActionException("You are not a member of this group"));
 
-        expenseSplitRepository.deleteAll(
-                expenseSplitRepository.findByExpense(expense)
-        );
+        expenseSplitRepository.deleteAll(expenseSplitRepository.findByExpense(expense));
 
         expenseRepository.delete(expense);
         }
@@ -500,8 +491,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 Long groupId,
                 String userEmail) {
 
-        List<BalanceResponse> balances =
-                getGroupBalances(groupId, userEmail);
+        List<BalanceResponse> balances = getGroupBalances(groupId, userEmail);
 
         List<BalanceResponse> creditors = balances.stream()
                 .filter(balance ->
@@ -534,8 +524,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 BigDecimal debtorAmount = debtorAmounts.get(i);
                 BigDecimal creditorAmount = creditorAmounts.get(j);
 
-                BigDecimal transfer =
-                        debtorAmount.min(creditorAmount);
+                BigDecimal transfer = debtorAmount.min(creditorAmount);
 
                 debts.add(
                         DebtResponse.builder()
@@ -545,25 +534,13 @@ public class ExpenseServiceImpl implements ExpenseService {
                                 .build()
                 );
 
-                debtorAmounts.set(
-                        i,
-                        debtorAmount.subtract(transfer)
-                );
+                debtorAmounts.set(i, debtorAmount.subtract(transfer));
 
-                creditorAmounts.set(
-                        j,
-                        creditorAmount.subtract(transfer)
-                );
+                creditorAmounts.set(j, creditorAmount.subtract(transfer));
 
-                if (debtorAmounts.get(i)
-                        .compareTo(BigDecimal.ZERO) == 0) {
-                i++;
-                }
+                if (debtorAmounts.get(i).compareTo(BigDecimal.ZERO) == 0) i++;
 
-                if (creditorAmounts.get(j)
-                        .compareTo(BigDecimal.ZERO) == 0) {
-                j++;
-                }
+                if (creditorAmounts.get(j).compareTo(BigDecimal.ZERO) == 0) j++;
         }
 
         return debts;
@@ -679,22 +656,13 @@ public class ExpenseServiceImpl implements ExpenseService {
                 String userEmail) {
 
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "User not found"
-                        ));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Group not found"
-                        ));
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         groupMemberRepository.findByGroupAndUser(group, user)
-                .orElseThrow(() ->
-                        new UnauthorizedActionException(
-                                "You are not a member of this group"
-                        ));
+                .orElseThrow(() -> new UnauthorizedActionException("You are not a member of this group"));
 
         return expenseRepository
                 .getCategorySummary(groupId)
@@ -713,8 +681,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 String userEmail) {
 
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return expenseRepository
                 .getOverallCategorySummary(user.getId())

@@ -24,63 +24,52 @@ public class DashboardServiceImpl implements DashboardService {
     private final ExpenseRepository expenseRepository;
     private final SettlementRepository settlementRepository;
 
-    @Override
-    public DashboardResponse getDashboard(String userEmail) {
+        @Override
+        public DashboardResponse getDashboard(String userEmail) {
 
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                User user = userRepository.findByEmail(userEmail)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        List<GroupMember> memberships =
-                groupMemberRepository.findByUser(user);
+                List<GroupMember> memberships = groupMemberRepository.findByUser(user);
 
-        long totalGroups = memberships.size();
+                long totalGroups = memberships.size();
 
-        long totalExpenses = 0;
+                long totalExpenses = 0;
 
-        BigDecimal totalExpenseAmount = BigDecimal.ZERO;
+                BigDecimal totalExpenseAmount = BigDecimal.ZERO;
 
-        for (GroupMember membership : memberships) {
+                for(GroupMember membership : memberships) {
+                        List<Expense> expenses = expenseRepository.findByGroup(membership.getGroup());
+                        totalExpenses += expenses.size();
+                        for(Expense expense : expenses) {
+                                totalExpenseAmount = totalExpenseAmount.add(expense.getAmount());
+                        }
+                }
 
-            List<Expense> expenses =
-                    expenseRepository.findByGroup(
-                            membership.getGroup());
+                long totalSettlements =
+                        settlementRepository.findByPayer(user).size();
 
-            totalExpenses += expenses.size();
-
-            for (Expense expense : expenses) {
-                totalExpenseAmount =
-                        totalExpenseAmount.add(expense.getAmount());
-            }
+                return DashboardResponse.builder()
+                        .totalGroups(totalGroups)
+                        .totalExpenses(totalExpenses)
+                        .totalSettlements(totalSettlements)
+                        .totalExpenseAmount(totalExpenseAmount)
+                        .build();
         }
 
-        long totalSettlements =
-                settlementRepository.findByPayer(user).size();
-
-        return DashboardResponse.builder()
-                .totalGroups(totalGroups)
-                .totalExpenses(totalExpenses)
-                .totalSettlements(totalSettlements)
-                .totalExpenseAmount(totalExpenseAmount)
-                .build();
-    }
-
         @Override
-        public List<CategoryExpenseResponse> getOverallCategorySummary(
-                String userEmail) {
+        public List<CategoryExpenseResponse> getOverallCategorySummary(String userEmail) {
+                User user = userRepository.findByEmail(userEmail)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
-
-        return expenseRepository
-                .getOverallCategorySummary(user.getId())
-                .stream()
-                .map(result ->
-                        CategoryExpenseResponse.builder()
-                                .category(result[0].toString())
-                                .amount((BigDecimal) result[1])
-                                .build())
-                .toList();
+                return expenseRepository
+                        .getOverallCategorySummary(user.getId())
+                        .stream()
+                        .map(result ->
+                                CategoryExpenseResponse.builder()
+                                        .category(result[0].toString())
+                                        .amount((BigDecimal) result[1])
+                                        .build())
+                        .toList();
         }
 }

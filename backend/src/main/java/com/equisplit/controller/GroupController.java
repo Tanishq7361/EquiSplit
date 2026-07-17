@@ -35,12 +35,8 @@ public class GroupController {
         }
 
         @GetMapping
-        public ResponseEntity<List<GroupSummaryResponse>> getMyGroups(
-                Authentication authentication) {
-
-                return ResponseEntity.ok(
-                        groupService.getMyGroups(authentication.getName())
-                );
+        public ResponseEntity<List<GroupSummaryResponse>> getMyGroups(Authentication authentication) {
+                return ResponseEntity.ok(groupService.getMyGroups(authentication.getName()));
         }
 
         @PostMapping("/{groupId}/members")
@@ -64,13 +60,13 @@ public class GroupController {
                 @PathVariable Long userId,
                 Authentication authentication) {
 
-        groupService.removeMember(
-                groupId,
-                userId,
-                authentication.getName()
-        );
+                groupService.removeMember(
+                        groupId,
+                        userId,
+                        authentication.getName()
+                );
 
-        return ResponseEntity.noContent().build();
+                return ResponseEntity.noContent().build();
         }
 
         @GetMapping("/{groupId}")
@@ -78,12 +74,7 @@ public class GroupController {
                 @PathVariable Long groupId,
                 Authentication authentication) {
 
-                return ResponseEntity.ok(
-                        groupService.getGroupDetails(
-                                groupId,
-                                authentication.getName()
-                        )
-                );
+                return ResponseEntity.ok(groupService.getGroupDetails(groupId, authentication.getName()));
         }
 
         @GetMapping("/{groupId}/members")
@@ -91,12 +82,7 @@ public class GroupController {
                 @PathVariable Long groupId,
                 Authentication authentication) {
 
-        return ResponseEntity.ok(
-                groupService.getGroupMembers(
-                        groupId,
-                        authentication.getName()
-                )
-        );
+                return ResponseEntity.ok(groupService.getGroupMembers(groupId, authentication.getName()));
         }
 
         @DeleteMapping("/{groupId}")
@@ -104,12 +90,8 @@ public class GroupController {
                 @PathVariable Long groupId,
                 Authentication authentication) {
 
-        groupService.deleteGroup(
-                groupId,
-                authentication.getName()
-        );
-
-        return ResponseEntity.noContent().build();
+                groupService.deleteGroup(groupId, authentication.getName());
+                return ResponseEntity.noContent().build();
         }
 
         @PutMapping("/{groupId}")
@@ -118,12 +100,12 @@ public class GroupController {
                 @RequestBody @Valid UpdateGroupRequest request,
                 Authentication authentication) {
 
-        return ResponseEntity.ok(
-                groupService.updateGroup(
-                        groupId,
-                        request,
-                        authentication.getName()
-                )
-        );
+                return ResponseEntity.ok(
+                        groupService.updateGroup(
+                                groupId,
+                                request,
+                                authentication.getName()
+                        )
+                );
         }
 }

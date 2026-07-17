@@ -40,40 +40,19 @@ public class ExpenseController {
         }
 
         @GetMapping("/balances")
-        public ResponseEntity<List<BalanceResponse>> getBalances(
-                @PathVariable Long groupId,
-                Authentication authentication) {
-
-        return ResponseEntity.ok(
-                expenseService.getGroupBalances(
-                        groupId,
-                        authentication.getName()
-                )
-        );
+        public ResponseEntity<List<BalanceResponse>> getBalances(@PathVariable Long groupId, Authentication authentication) {
+                return ResponseEntity.ok(expenseService.getGroupBalances(groupId, authentication.getName()));
         }
 
         @GetMapping
-        public ResponseEntity<List<ExpenseSummaryResponse>> getGroupExpenses(
-                @PathVariable Long groupId,
+        public ResponseEntity<List<ExpenseSummaryResponse>> getGroupExpenses(@PathVariable Long groupId,
                 Authentication authentication) {
-
-        return ResponseEntity.ok(
-                expenseService.getGroupExpenses(
-                        groupId,
-                        authentication.getName()
-                )
-        );
+                return ResponseEntity.ok(expenseService.getGroupExpenses(groupId, authentication.getName()));
         }
 
         @GetMapping("/outstanding")
-        public ResponseEntity<BigDecimal> getOutstandingBalance(
-                Authentication authentication) {
-
-        return ResponseEntity.ok(
-                expenseService.getOutstandingBalance(
-                        authentication.getName()
-                )
-        );
+        public ResponseEntity<BigDecimal> getOutstandingBalance(Authentication authentication) {
+                return ResponseEntity.ok(expenseService.getOutstandingBalance(authentication.getName()));
         }
 
         @DeleteMapping("/{expenseId}")
@@ -82,13 +61,8 @@ public class ExpenseController {
                 @PathVariable Long expenseId,
                 Authentication authentication) {
 
-        expenseService.deleteExpense(
-                groupId,
-                expenseId,
-                authentication.getName()
-        );
-
-        return ResponseEntity.noContent().build();
+                expenseService.deleteExpense(groupId, expenseId, authentication.getName());
+                return ResponseEntity.noContent().build();
         }
 
         @GetMapping("/debts")
@@ -96,12 +70,7 @@ public class ExpenseController {
                 @PathVariable Long groupId,
                 Authentication authentication) {
 
-        return ResponseEntity.ok(
-                expenseService.getSimplifiedDebts(
-                        groupId,
-                        authentication.getName()
-                )
-        );
+                return ResponseEntity.ok(expenseService.getSimplifiedDebts(groupId, authentication.getName()));
         }
 
         @PutMapping("/{expenseId}")
@@ -110,15 +79,14 @@ public class ExpenseController {
                 @PathVariable Long expenseId,
                 @Valid @RequestBody UpdateExpenseRequest request,
                 Authentication authentication
-        ) {
-        return ResponseEntity.ok(
-                expenseService.updateExpense(
-                        groupId,
-                        expenseId,
-                        request,
-                        authentication.getName()
-                )
-        );
+        ){
+                return ResponseEntity.ok(
+                        expenseService.updateExpense(
+                                groupId, expenseId,
+                                request, 
+                                authentication.getName()
+                        )
+                );
         }
 
         @GetMapping("/{expenseId}")
@@ -127,26 +95,12 @@ public class ExpenseController {
                 @PathVariable Long expenseId,
                 Authentication authentication) {
 
-        return ResponseEntity.ok(
-                expenseService.getExpense(
-                        groupId,
-                        expenseId,
-                        authentication.getName()
-                )
-        );
+                return ResponseEntity.ok(expenseService.getExpense(groupId, expenseId, authentication.getName()));
         }
 
         @GetMapping("/category-summary")
         public ResponseEntity<List<CategoryExpenseResponse>>
-        getCategorySummary(
-                @PathVariable Long groupId,
-                Authentication authentication) {
-
-        return ResponseEntity.ok(
-                expenseService.getCategorySummary(
-                        groupId,
-                        authentication.getName()
-                )
-        );
+        getCategorySummary(@PathVariable Long groupId,Authentication authentication) {
+                return ResponseEntity.ok(expenseService.getCategorySummary(groupId, authentication.getName()));
         }
 }

@@ -7,8 +7,7 @@ import com.equisplit.entity.User;
 
 import java.util.List;
 
-public interface SettlementRepository
-        extends JpaRepository<Settlement, Long> {
+public interface SettlementRepository extends JpaRepository<Settlement, Long> {
 
     List<Settlement> findByGroup(Group group);
     boolean existsByGroupAndPayer(Group group, User user);

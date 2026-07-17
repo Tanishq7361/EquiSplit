@@ -7,7 +7,6 @@ import java.util.List;
 public interface DashboardService {
 
     DashboardResponse getDashboard(String userEmail);
-    List<CategoryExpenseResponse> getOverallCategorySummary(
-            String userEmail
-    );
+    
+    List<CategoryExpenseResponse> getOverallCategorySummary(String userEmail);
 }

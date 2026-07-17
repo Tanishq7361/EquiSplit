@@ -31,299 +31,253 @@ import java.time.OffsetDateTime;
 @RequiredArgsConstructor
 public class GroupServiceImpl implements GroupService {
 
-    private final GroupRepository groupRepository;
-    private final GroupMemberRepository groupMemberRepository;
-    private final UserRepository userRepository;
-    private final ExpenseRepository expenseRepository;
-    private final SettlementRepository settlementRepository;
-    private final ExpenseSplitRepository expenseSplitRepository;
+        private final GroupRepository groupRepository;
+        private final GroupMemberRepository groupMemberRepository;
+        private final UserRepository userRepository;
+        private final ExpenseRepository expenseRepository;
+        private final SettlementRepository settlementRepository;
+        private final ExpenseSplitRepository expenseSplitRepository;
 
-    @Override
-    public GroupResponse createGroup(
-            CreateGroupRequest request,
-            String userEmail) {
+        @Override
+        public GroupResponse createGroup(CreateGroupRequest request, String userEmail) {
+                User creator = userRepository.findByEmail(userEmail)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        User creator = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                Group group = Group.builder()
+                        .name(request.getName())
+                        .description(request.getDescription())
+                        .createdBy(creator)
+                        .createdAt(OffsetDateTime.now())
+                        .updatedAt(OffsetDateTime.now())
+                        .build();
 
-        Group group = Group.builder()
-                .name(request.getName())
-                .description(request.getDescription())
-                .createdBy(creator)
-                .createdAt(OffsetDateTime.now())
-                .updatedAt(OffsetDateTime.now())
-                .build();
+                Group savedGroup = groupRepository.save(group);
 
-        Group savedGroup = groupRepository.save(group);
+                GroupMember member = GroupMember.builder()
+                        .group(savedGroup)
+                        .user(creator)
+                        .role(GroupRole.OWNER)
+                        .joinedAt(OffsetDateTime.now())
+                        .build();
 
-        GroupMember member = GroupMember.builder()
-                .group(savedGroup)
-                .user(creator)
-                .role(GroupRole.OWNER)
-                .joinedAt(OffsetDateTime.now())
-                .build();
+                groupMemberRepository.save(member);
 
-        groupMemberRepository.save(member);
-
-        return GroupResponse.builder()
-                .id(savedGroup.getId())
-                .name(savedGroup.getName())
-                .description(savedGroup.getDescription())
-                .build();
-    }
-
-    @Override
-        public List<GroupSummaryResponse> getMyGroups(String userEmail) {
-
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        return groupMemberRepository.findByUser(user)
-                .stream()
-                .map(member -> {
-
-                        Group group = member.getGroup();
-
-                        int memberCount =
-                                groupMemberRepository.findByGroup(group).size();
-
-                        int totalExpenses =
-                                expenseRepository.findByGroup(group).size();
-
-                        return GroupSummaryResponse.builder()
-                                .id(group.getId())
-                                .name(group.getName())
-                                .description(group.getDescription())
-                                .memberCount(memberCount)
-                                .totalExpenses(totalExpenses)
-                                .build();
-                })
-                .toList();
+                return GroupResponse.builder()
+                        .id(savedGroup.getId())
+                        .name(savedGroup.getName())
+                        .description(savedGroup.getDescription())
+                        .build();
         }
 
-    @Override
-    public void addMember(
-            Long groupId,
-            AddMemberRequest request,
-            String userEmail) {
+        @Override
+        public List<GroupSummaryResponse> getMyGroups(String userEmail) {
+                User user = userRepository.findByEmail(userEmail)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        User currentUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                return groupMemberRepository.findByUser(user)
+                        .stream()
+                        .map(member -> {
 
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
+                                Group group = member.getGroup();
 
-        GroupMember ownerMembership =
+                                int memberCount =
+                                        groupMemberRepository.findByGroup(group).size();
+
+                                int totalExpenses =
+                                        expenseRepository.findByGroup(group).size();
+
+                                return GroupSummaryResponse.builder()
+                                        .id(group.getId())
+                                        .name(group.getName())
+                                        .description(group.getDescription())
+                                        .memberCount(memberCount)
+                                        .totalExpenses(totalExpenses)
+                                        .build();
+                        })
+                        .toList();
+        }
+
+        @Override
+        public void addMember(Long groupId, AddMemberRequest request, String userEmail) {
+
+                User currentUser = userRepository.findByEmail(userEmail)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+                Group group = groupRepository.findById(groupId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
+
+                GroupMember ownerMembership = groupMemberRepository.findByGroupAndUser(group, currentUser)
+                                .orElseThrow(() -> new UnauthorizedActionException("You are not a member of this group"));
+
+                if (ownerMembership.getRole() != GroupRole.OWNER) {
+                        throw new UnauthorizedActionException("Only owner can add members");
+                }
+
+                User userToAdd = userRepository.findByEmail(request.getEmail())
+                        .orElseThrow(() -> new ResourceNotFoundException("User to add not found"));
+
+                boolean alreadyMember = groupMemberRepository.findByGroupAndUser(group, userToAdd).isPresent();
+
+                if (alreadyMember) {
+                        throw new UnauthorizedActionException("User already in group");
+                }
+
+                GroupMember newMember = GroupMember.builder()
+                        .group(group)
+                        .user(userToAdd)
+                        .role(GroupRole.MEMBER)
+                        .joinedAt(OffsetDateTime.now())
+                        .build();
+
+                groupMemberRepository.save(newMember);
+        }
+
+        @Override
+        public GroupDetailsResponse getGroupDetails(
+                Long groupId,
+                String userEmail) {
+
+                User currentUser = userRepository.findByEmail(userEmail)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+                Group group = groupRepository.findById(groupId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
+
                 groupMemberRepository.findByGroupAndUser(group, currentUser)
                         .orElseThrow(() -> new UnauthorizedActionException("You are not a member of this group"));
 
-        if (ownerMembership.getRole() != GroupRole.OWNER) {
-            throw new UnauthorizedActionException("Only owner can add members");
+                List<GroupMemberResponse> members =
+                        groupMemberRepository.findByGroup(group)
+                                .stream()
+                                .map(member -> GroupMemberResponse.builder()
+                                        .id(member.getUser().getId())
+                                        .name(member.getUser().getName())
+                                        .role(member.getRole().name())
+                                        .build())
+                                .toList();
+
+                return GroupDetailsResponse.builder()
+                        .id(group.getId())
+                        .name(group.getName())
+                        .description(group.getDescription())
+                        .members(members)
+                        .build();
         }
 
-        User userToAdd = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User to add not found"));
+        @Override
+        public List<GroupMemberResponse> getGroupMembers(Long groupId, String userEmail) {
+                User currentUser = userRepository.findByEmail(userEmail)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        boolean alreadyMember =
-                groupMemberRepository.findByGroupAndUser(group, userToAdd)
-                        .isPresent();
+                Group group = groupRepository.findById(groupId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
-        if (alreadyMember) {
-            throw new UnauthorizedActionException("User already in group");
-        }
+                groupMemberRepository.findByGroupAndUser(group, currentUser)
+                        .orElseThrow(() ->
+                                new UnauthorizedActionException("You are not a member of this group"));
 
-        GroupMember newMember = GroupMember.builder()
-                .group(group)
-                .user(userToAdd)
-                .role(GroupRole.MEMBER)
-                .joinedAt(OffsetDateTime.now())
-                .build();
-
-        groupMemberRepository.save(newMember);
-    }
-
-    @Override
-    public GroupDetailsResponse getGroupDetails(
-            Long groupId,
-            String userEmail) {
-
-        User currentUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
-
-        groupMemberRepository.findByGroupAndUser(group, currentUser)
-                .orElseThrow(() -> new UnauthorizedActionException("You are not a member of this group"));
-
-        List<GroupMemberResponse> members =
-                groupMemberRepository.findByGroup(group)
+                return groupMemberRepository.findByGroup(group)
                         .stream()
                         .map(member -> GroupMemberResponse.builder()
                                 .id(member.getUser().getId())
                                 .name(member.getUser().getName())
+                                .email(member.getUser().getEmail())
                                 .role(member.getRole().name())
                                 .build())
                         .toList();
-
-        return GroupDetailsResponse.builder()
-                .id(group.getId())
-                .name(group.getName())
-                .description(group.getDescription())
-                .members(members)
-                .build();
-    }
-
-    @Override
-        public List<GroupMemberResponse> getGroupMembers(
-                Long groupId,
-                String userEmail) {
-
-        User currentUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
-
-        groupMemberRepository.findByGroupAndUser(group, currentUser)
-                .orElseThrow(() ->
-                        new UnauthorizedActionException("You are not a member of this group"));
-
-        return groupMemberRepository.findByGroup(group)
-                .stream()
-                .map(member -> GroupMemberResponse.builder()
-                        .id(member.getUser().getId())
-                        .name(member.getUser().getName())
-                        .email(member.getUser().getEmail())
-                        .role(member.getRole().name())
-                        .build())
-                .toList();
         }
 
         @Override
         @Transactional
-        public void removeMember(
-                Long groupId,
-                Long userId,
-                String userEmail) {
+        public void removeMember(Long groupId, Long userId, String userEmail) {
 
-        User currentUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                User currentUser = userRepository.findByEmail(userEmail)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Group not found"));
+                Group group = groupRepository.findById(groupId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
-        GroupMember ownerMembership =
-                groupMemberRepository.findByGroupAndUser(group, currentUser)
-                        .orElseThrow(() ->
-                                new UnauthorizedActionException(
-                                        "You are not a member of this group"));
+                GroupMember ownerMembership = groupMemberRepository.findByGroupAndUser(group, currentUser)
+                                .orElseThrow(() -> new UnauthorizedActionException("You are not a member of this group"));
 
-        if (ownerMembership.getRole() != GroupRole.OWNER) {
-                throw new UnauthorizedActionException(
-                        "Only owner can remove members");
-        }
+                if (ownerMembership.getRole() != GroupRole.OWNER) {
+                        throw new UnauthorizedActionException("Only owner can remove members");
+                }
 
-        User memberToRemove = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                User memberToRemove = userRepository.findById(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        GroupMember membership =
-                groupMemberRepository.findByGroupAndUser(group, memberToRemove)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Member not found"));
+                GroupMember membership = groupMemberRepository.findByGroupAndUser(group, memberToRemove)
+                                .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
 
-        if (membership.getRole() == GroupRole.OWNER) {
-                throw new UnauthorizedActionException(
-                        "Owner cannot be removed");
-        }
+                if (membership.getRole() == GroupRole.OWNER) {
+                        throw new UnauthorizedActionException("Owner cannot be removed");
+                }
 
-        if (expenseRepository.existsByGroupAndPaidBy(group, memberToRemove)) {
-                throw new UnauthorizedActionException(
-                        "Member has existing expenses");
-        }
+                if (expenseRepository.existsByGroupAndPaidBy(group, memberToRemove)) {
+                        throw new UnauthorizedActionException("Member has existing expenses");
+                }
 
-        if (settlementRepository.existsByGroupAndPayer(group, memberToRemove)
-                || settlementRepository.existsByGroupAndReceiver(group, memberToRemove)) {
+                if (settlementRepository.existsByGroupAndPayer(group, memberToRemove)
+                        || settlementRepository.existsByGroupAndReceiver(group, memberToRemove)) {
+                        throw new UnauthorizedActionException("Member has existing settlements");
+                }
 
-                throw new UnauthorizedActionException(
-                        "Member has existing settlements");
-        }
-
-        groupMemberRepository.deleteByGroupAndUser(group, memberToRemove);
+                groupMemberRepository.deleteByGroupAndUser(group, memberToRemove);
         }
 
         @Override
         @Transactional
-        public void deleteGroup(
-                Long groupId,
-                String userEmail) {
+        public void deleteGroup(Long groupId, String userEmail) {
 
-        User currentUser = userRepository.findByEmail(userEmail)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                User currentUser = userRepository.findByEmail(userEmail)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Group not found"));
+                Group group = groupRepository.findById(groupId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
-        GroupMember membership =
-                groupMemberRepository.findByGroupAndUser(group, currentUser)
-                        .orElseThrow(() ->
-                                new UnauthorizedActionException(
-                                        "You are not a member of this group"));
+                GroupMember membership = groupMemberRepository.findByGroupAndUser(group, currentUser)
+                                .orElseThrow(() ->new UnauthorizedActionException("You are not a member of this group"));
 
-        if (membership.getRole() != GroupRole.OWNER) {
-                throw new UnauthorizedActionException(
-                        "Only owner can delete group");
-        }
+                if (membership.getRole() != GroupRole.OWNER) {
+                        throw new UnauthorizedActionException("Only owner can delete group");
+                }
 
-        List<Expense> expenses =
-                expenseRepository.findByGroup(group);
+                List<Expense> expenses = expenseRepository.findByGroup(group);
 
-        expenseSplitRepository.deleteByExpenseIn(expenses);
+                expenseSplitRepository.deleteByExpenseIn(expenses);
 
-        expenseRepository.deleteByGroup(group);
+                expenseRepository.deleteByGroup(group);
 
-        settlementRepository.deleteByGroup(group);
+                settlementRepository.deleteByGroup(group);
 
-        groupMemberRepository.deleteByGroup(group);
+                groupMemberRepository.deleteByGroup(group);
 
-        groupRepository.delete(group);
+                groupRepository.delete(group);
         }
 
         @Override
-        public GroupResponse updateGroup(
-                Long groupId,
-                UpdateGroupRequest request,
-                String userEmail) {
+        public GroupResponse updateGroup(Long groupId, UpdateGroupRequest request, String userEmail) {
 
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                User user = userRepository.findByEmail(userEmail)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Group not found"));
+                Group group = groupRepository.findById(groupId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
-        if (!group.getCreatedBy().getId().equals(user.getId())) {
-                throw new UnauthorizedActionException(
-                        "Only the group owner can edit the group."
-                );
-        }
+                if (!group.getCreatedBy().getId().equals(user.getId())) {
+                        throw new UnauthorizedActionException("Only the group owner can edit the group.");
+                }
 
-        group.setName(request.getName());
-        group.setDescription(request.getDescription());
+                group.setName(request.getName());
+                group.setDescription(request.getDescription());
 
-        Group updated = groupRepository.save(group);
+                Group updated = groupRepository.save(group);
 
-        return GroupResponse.builder()
-                .id(updated.getId())
-                .name(updated.getName())
-                .description(updated.getDescription())
-                .build();
+                return GroupResponse.builder()
+                        .id(updated.getId())
+                        .name(updated.getName())
+                        .description(updated.getDescription())
+                        .build();
         }
 }

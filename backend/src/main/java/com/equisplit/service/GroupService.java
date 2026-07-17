@@ -17,17 +17,16 @@ public interface GroupService {
     );
     
     void addMember(Long groupId, AddMemberRequest request, String userEmail);
+
     void removeMember(Long groupId,Long userId,String userEmail);
+    
     void deleteGroup(Long groupId,String userEmail);
+
     List<GroupSummaryResponse> getMyGroups(String userEmail);
+
     GroupDetailsResponse getGroupDetails(Long groupId, String userEmail);
-    List<GroupMemberResponse> getGroupMembers(
-        Long groupId,
-        String userEmail
-    );
-    GroupResponse updateGroup(
-        Long groupId,
-        UpdateGroupRequest request,
-        String userEmail
-    );
+
+    List<GroupMemberResponse> getGroupMembers(Long groupId, String userEmail);
+
+    GroupResponse updateGroup(Long groupId, UpdateGroupRequest request, String userEmail);
 }

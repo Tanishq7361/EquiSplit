@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
+    
     boolean existsByGroupAndPaidBy(Group group, User user);
     List<Expense> findByGroup(Group group);
     void deleteByGroup(Group group);
