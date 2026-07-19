@@ -17,7 +17,7 @@ export default function MonthlyBarChart({ data }) {
             style={{
                 width: "100%",
                 height: 280,
-                background: "var(--color-gold)",
+                background: "var(--color-text-muted)",
                 borderRadius: "16px",
                 padding: "20px"
             }}
