@@ -47,6 +47,7 @@ export default function MonthlyBarChart({ data }) {
 
                     <Bar
                         dataKey="totalAmount"
+                        fill="#20b382" 
                         radius={[8,8,0,0]}
                     />
 
