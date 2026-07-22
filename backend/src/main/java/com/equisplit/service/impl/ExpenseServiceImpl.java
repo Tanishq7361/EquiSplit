@@ -24,6 +24,7 @@ import com.equisplit.dto.response.BalanceResponse;
 import com.equisplit.dto.response.CategoryExpenseResponse;
 
 import java.util.List;
+import java.util.PriorityQueue;
 import com.equisplit.repository.SettlementRepository;
 import com.equisplit.dto.response.ExpenseSummaryResponse;
 import com.equisplit.dto.response.MonthlyExpenseResponse;
@@ -487,135 +488,125 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
 
         @Override
-        public List<DebtResponse> getSimplifiedDebts(
-                Long groupId,
-                String userEmail) {
+        public List<DebtResponse> getSimplifiedDebts(Long groupId, String userEmail) {
 
-        List<BalanceResponse> balances = getGroupBalances(groupId, userEmail);
+                List<BalanceResponse> balances = getGroupBalances(groupId, userEmail);
 
-        List<BalanceResponse> creditors = balances.stream()
-                .filter(balance ->
-                        balance.getBalance().compareTo(BigDecimal.ZERO) > 0)
-                .toList();
-
-        List<BalanceResponse> debtors = balances.stream()
-                .filter(balance ->
-                        balance.getBalance().compareTo(BigDecimal.ZERO) < 0)
-                .toList();
-
-        List<DebtResponse> debts = new ArrayList<>();
-
-        int i = 0;
-        int j = 0;
-
-        List<BigDecimal> creditorAmounts =
-                creditors.stream()
-                        .map(balance -> balance.getBalance())
-                        .map(amount -> amount.abs())
-                        .collect(java.util.stream.Collectors.toList());
-
-        List<BigDecimal> debtorAmounts =
-                debtors.stream()
-                        .map(balance -> balance.getBalance().abs())
-                        .collect(java.util.stream.Collectors.toList());
-
-        while (i < debtors.size() && j < creditors.size()) {
-
-                BigDecimal debtorAmount = debtorAmounts.get(i);
-                BigDecimal creditorAmount = creditorAmounts.get(j);
-
-                BigDecimal transfer = debtorAmount.min(creditorAmount);
-
-                debts.add(
-                        DebtResponse.builder()
-                                .fromUser(debtors.get(i).getUserName())
-                                .toUser(creditors.get(j).getUserName())
-                                .amount(transfer)
-                                .build()
+                PriorityQueue<BalanceResponse> creditors = new PriorityQueue<>(
+                        (a, b) -> b.getBalance().compareTo(a.getBalance())
                 );
 
-                debtorAmounts.set(i, debtorAmount.subtract(transfer));
+                PriorityQueue<BalanceResponse> debtors = new PriorityQueue<>(
+                        (a, b) -> b.getBalance().abs().compareTo(a.getBalance().abs())
+                );
 
-                creditorAmounts.set(j, creditorAmount.subtract(transfer));
+                for (BalanceResponse balance : balances) {
+                        if (balance.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+                                creditors.offer(balance);
+                        } else if (balance.getBalance().compareTo(BigDecimal.ZERO) < 0) {
+                                debtors.offer(balance);
+                        }
+                }
 
-                if (debtorAmounts.get(i).compareTo(BigDecimal.ZERO) == 0) i++;
+                List<DebtResponse> debts = new ArrayList<>();
 
-                if (creditorAmounts.get(j).compareTo(BigDecimal.ZERO) == 0) j++;
+                while (!creditors.isEmpty() && !debtors.isEmpty()) {
+
+                        BalanceResponse creditor = creditors.poll();
+                        BalanceResponse debtor = debtors.poll();
+
+                        BigDecimal transfer = creditor.getBalance().min(debtor.getBalance().abs());
+
+                        debts.add(
+                                DebtResponse.builder()
+                                        .fromUser(debtor.getUserName())
+                                        .toUser(creditor.getUserName())
+                                        .amount(transfer)
+                                        .build()
+                        );
+
+                        BigDecimal creditorRemaining = creditor.getBalance().subtract(transfer);
+
+                        BigDecimal debtorRemaining = debtor.getBalance().abs().subtract(transfer);
+
+                        if (creditorRemaining.compareTo(BigDecimal.ZERO) > 0) {
+                                creditor.setBalance(creditorRemaining);
+                                creditors.offer(creditor);
+                        }
+
+                        if (debtorRemaining.compareTo(BigDecimal.ZERO) > 0) {
+                                debtor.setBalance(debtorRemaining.negate());
+                                debtors.offer(debtor);
+                        }
+                }
+                
+                return debts;
         }
 
-        return debts;
-        }
-
-        private void createExpenseSplits(
-                Expense expense,
-                UpdateExpenseRequest request,
-                Group group) {
+        private void createExpenseSplits(Expense expense, UpdateExpenseRequest request, Group group) {
 
         switch (request.getSplitType()) {
 
                 case "EQUAL" -> {
 
-                var participants = request.getSplits();
+                        var participants = request.getSplits();
 
-                if (participants == null || participants.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "Select at least one participant."
-                );
-                }
-
-                int memberCount = participants.size();
-
-                BigDecimal equalShare = request.getAmount()
-                        .divide(
-                                BigDecimal.valueOf(memberCount),
-                                2,
-                                java.math.RoundingMode.DOWN
-                        );
-
-                BigDecimal assigned = BigDecimal.ZERO;
-
-                for (int i = 0; i < participants.size(); i++) {
-
-                        User user = userRepository.findById(
-                                participants.get(i).getUserId()
-                        ).orElseThrow(() ->
-                                new ResourceNotFoundException("User not found"));
-
-                        BigDecimal share;
-
-                        if (i == participants.size() - 1) {
-                        share = request.getAmount().subtract(assigned);
-                        } else {
-                        share = equalShare;
-                        assigned = assigned.add(equalShare);
+                        if (participants == null || participants.isEmpty()) {
+                                throw new IllegalArgumentException("Select at least one participant.");
                         }
 
-                        expenseSplitRepository.save(
-                                ExpenseSplit.builder()
-                                        .expense(expense)
-                                        .user(user)
-                                        .shareAmount(share)
-                                        .build()
-                        );
-                }
+                        int memberCount = participants.size();
+
+                        BigDecimal equalShare = request.getAmount()
+                                .divide(
+                                        BigDecimal.valueOf(memberCount),
+                                        2,
+                                        java.math.RoundingMode.DOWN
+                                );
+
+                        BigDecimal assigned = BigDecimal.ZERO;
+
+                        for (int i = 0; i < participants.size(); i++) {
+
+                                User user = userRepository.findById(
+                                        participants.get(i).getUserId()
+                                ).orElseThrow(() ->
+                                        new ResourceNotFoundException("User not found"));
+
+                                BigDecimal share;
+
+                                if (i == participants.size() - 1) {
+                                share = request.getAmount().subtract(assigned);
+                                } else {
+                                share = equalShare;
+                                assigned = assigned.add(equalShare);
+                                }
+
+                                expenseSplitRepository.save(
+                                        ExpenseSplit.builder()
+                                                .expense(expense)
+                                                .user(user)
+                                                .shareAmount(share)
+                                                .build()
+                                );
+                        }
                 }
 
                 case "EXACT" -> {
 
-                for (var split : request.getSplits()) {
+                        for (var split : request.getSplits()) {
 
-                        User user = userRepository.findById(split.getUserId())
-                                .orElseThrow(() ->
-                                        new ResourceNotFoundException("User not found"));
+                                User user = userRepository.findById(split.getUserId())
+                                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-                        expenseSplitRepository.save(
-                                ExpenseSplit.builder()
-                                        .expense(expense)
-                                        .user(user)
-                                        .shareAmount(split.getValue())
-                                        .build()
-                        );
-                }
+                                expenseSplitRepository.save(
+                                        ExpenseSplit.builder()
+                                                .expense(expense)
+                                                .user(user)
+                                                .shareAmount(split.getValue())
+                                                .build()
+                                );
+                        }
                 }
 
                 case "PERCENTAGE" -> {
@@ -623,8 +614,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 for (var split : request.getSplits()) {
 
                         User user = userRepository.findById(split.getUserId())
-                                .orElseThrow(() ->
-                                        new ResourceNotFoundException("User not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
                         BigDecimal share = request.getAmount()
                                 .multiply(split.getValue())
