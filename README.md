@@ -1,23 +1,6 @@
 # ⚖️ EquiSplit
 
-An expense sharing platform that helps users to manage group expenses and settle debts efficiently.
-
-<p align="center">
-
-![Java](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-success)
-![React](https://img.shields.io/badge/React-19-61DAFB)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
-![JWT](https://img.shields.io/badge/Auth-JWT-green)
-![License](https://img.shields.io/badge/license-MIT-blue)
-
-</p>
-
----
-
-## 📌 Overview
-
-EquiSplit simplifies expense management for trips, roommates, friends, and teams by providing a seamless way to create groups, record shared expenses, calculate balances, and track settlements.
+An expense sharing platform that helps users to manage group expenses and settle debts efficiently.It simplifies expense management for trips, roommates, friends, and teams by providing a seamless way to create groups, record shared expenses, calculate balances, and track settlements.
 
 The settlement of groups are simplified using Min Cash Flow algorithm.
 
@@ -275,31 +258,6 @@ This avoids unnecessary prop drilling across the application.
 
 ---
 
-# API Layer
-
-All backend communication is centralized into dedicated API modules.
-
-```
-api/
-
-├── apiClient.js
-├── authApi.js
-├── groupsApi.js
-├── expensesApi.js
-├── settlementsApi.js
-└── dashboardApi.js
-```
-
-This abstraction provides
-
-- Cleaner components
-- Easier maintenance
-- Consistent request handling
-- Automatic JWT attachment
-- Centralized error handling
-
----
-
 # Project Structure
 
 ```
@@ -338,19 +296,6 @@ EquiSplit/
 │
 ├── frontend/
 │
-│   ├── api/
-│   ├── components/
-│   ├── context/
-│   ├── hooks/
-│   ├── features/
-│   │      ├── auth/
-│   │      ├── dashboard/
-│   │      ├── groups/
-│   │      └── expenses/
-│   │
-│   ├── utils/
-│   └── styles/
-│
 └── README.md
 ```
 
@@ -360,7 +305,7 @@ EquiSplit/
 
 | Layer | Technology |
 |--------|------------|
-| Backend | Java 21 |
+| Backend | Java |
 | Framework | Spring Boot |
 | Authentication | JWT |
 | Database | PostgreSQL |
