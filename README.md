@@ -1,6 +1,6 @@
 # ⚖️ EquiSplit
 
-A production-inspired expense sharing platform built with Spring Boot and React that demonstrates secure authentication, financial data modeling, scalable REST APIs, and modern full-stack architecture.
+An expense sharing platform that helps users to manage group expenses and settle debts efficiently.
 
 <p align="center">
 
@@ -19,7 +19,7 @@ A production-inspired expense sharing platform built with Spring Boot and React 
 
 EquiSplit simplifies expense management for trips, roommates, friends, and teams by providing a seamless way to create groups, record shared expenses, calculate balances, and track settlements.
 
-Unlike basic expense trackers, EquiSplit supports multiple split strategies while providing interactive dashboards, analytics, secure authentication.
+The settlement of groups are simplified using Min Cash Flow algorithm.
 
 ---
 
@@ -83,14 +83,14 @@ React-->>User: Dashboard Updated
 
 | Category | Features |
 |-----------|----------|
-| Authentication | JWT Login • Registration • Protected Routes |
+| Authentication | JWT Login • Registration |
 | Groups | Create Groups • Edit Groups • Delete Groups |
 | Members | Add Members • Remove Members |
 | Expenses | Create • Edit • Delete Expenses |
 | Split Types | Equal • Exact Amount • Percentage |
 | Settlement | Record Settlements |
 | Dashboard | Total Groups • Total Expenses • Expense Analytics |
-| Security | JWT Authentication • Route Protection • Input Validation |
+| Security | JWT Authentication |
 
 ---
 
@@ -133,8 +133,6 @@ React-->>User: Dashboard Updated
 ✅ Balance Calculation
 
 ✅ Settlement Tracking
-
-✅ Dashboard Analytics
 
 ---
 
@@ -234,31 +232,6 @@ JWT authentication removes the need for server-side sessions, allowing the backe
 
 ---
 
-# Expense Splitting Strategies
-
-EquiSplit supports three independent split algorithms.
-
----
-
-# Validation
-
-The backend validates every request before persisting data.
-
-Examples include
-
-- Positive expense amount
-- Valid split totals
-- Percentage equals exactly 100%
-- User belongs to the selected group
-- Paid-by user exists
-- JWT authentication
-- Protected routes
-- Input sanitization
-
-Invalid requests return meaningful HTTP error responses.
-
----
-
 # Security
 
 The application implements multiple security layers.
@@ -266,52 +239,12 @@ The application implements multiple security layers.
 - JWT Authentication
 - BCrypt Password Hashing
 - Stateless Sessions
-- Route Protection
 - Input Validation
 - Global Exception Handling
 - CORS Configuration
 - Protected REST APIs
 
 Passwords are never stored in plain text.
-
----
-
-# Engineering Decisions
-
-### Why Spring Boot?
-
-Spring Boot provides
-
-- Dependency Injection
-- Auto Configuration
-- Spring Security
-- Spring Data JPA
-- Production-ready REST APIs
-
-allowing rapid development while following enterprise architecture.
-
----
-
-### Why PostgreSQL?
-
-PostgreSQL provides
-
-- ACID transactions
-- Foreign Key Constraints
-- Reliable relational modeling
-- Excellent indexing performance
-
-which makes it suitable for financial-style applications.
-
----
-
-### Why BigDecimal?
-
-Money calculations require exact precision.
-
-Using `double` may introduce rounding errors.
-
-Instead, EquiSplit performs every monetary calculation using `BigDecimal` to guarantee accurate financial computations.
 
 ---
 
@@ -326,16 +259,6 @@ The backend exposes RESTful APIs grouped by resource.
 | Members | Add / Remove Members |
 | Expenses | CRUD + Split Calculation |
 | Settlements | Record Payments |
-| Dashboard | Analytics & Reports |
-
-
-# Client-side Routing
-
-The application uses **React Router** with protected routes to ensure only authenticated users can access secured pages.
-
-# State Management
-
-Instead of introducing a heavyweight state management library, EquiSplit relies on React's built-in APIs.
 
 ## Context API
 
@@ -374,16 +297,6 @@ This abstraction provides
 - Consistent request handling
 - Automatic JWT attachment
 - Centralized error handling
-
----
-
-## API Documentation
-
-Interactive API documentation is available through Swagger UI.
-
-```
-http://localhost:8080/swagger-ui/index.html
-```
 
 ---
 
@@ -448,14 +361,11 @@ EquiSplit/
 | Layer | Technology |
 |--------|------------|
 | Backend | Java 21 |
-| Framework | Spring Boot 3 |
+| Framework | Spring Boot |
 | Authentication | JWT |
 | Database | PostgreSQL |
 | ORM | Spring Data JPA / Hibernate |
 | Build Tool | Maven |
-| Deployment | Render |
-| Database Hosting | Neon PostgreSQL |
-| Version Control | Git & GitHub |
 
 ---
 
@@ -556,13 +466,6 @@ Frontend
 ```bash
 npm run build
 ```
-
----
-
-# Engineering Decisions
-
-Building EquiSplit involved more than implementing CRUD APIs. Several architectural and implementation decisions were made to improve maintainability, scalability, and correctness.
-
 ---
 
 ## Stateless Authentication with JWT
@@ -611,7 +514,6 @@ This significantly simplifies
 - balance calculation
 - settlement generation
 - reporting
-- future analytics
 
 ```
 ---
@@ -624,8 +526,6 @@ The application incorporates multiple security best practices.
 
 ✅ JWT authentication
 
-✅ Protected routes
-
 ✅ Input validation
 
 ✅ Global exception handling
@@ -633,76 +533,6 @@ The application incorporates multiple security best practices.
 ✅ Authorization checks
 
 Only authenticated users can access or modify their own groups and expenses.
-
----
-
-# Scalability Considerations
-
-Although EquiSplit is designed for educational purposes, the architecture allows future scaling.
-
-Possible improvements include
-
-- Redis caching
-- Docker containerization
-- Kubernetes deployment
-- Microservice decomposition
-- Asynchronous notifications
-- Event-driven settlement processing
-
-The layered architecture enables these improvements without major code restructuring.
-
----
-
-# Challenges Faced
-
-During development, several engineering challenges were encountered.
-
-### Expense Split Validation
-
-Ensuring
-
-```
-Exact Split
-
-sum(split amounts)
-
-=
-
-Expense Amount
-```
-
-required backend validation before persistence.
-
----
-
-### Percentage Validation
-
-The application validates that
-
-```
-Σ Percentage = 100%
-```
-
-before accepting the request.
-
----
-
-### Equal Split Editing
-
-Editing an existing expense while allowing members to be added or removed required redesigning the split generation logic.
-
-The backend now recreates expense splits after every update to maintain consistency.
-
----
-
-### Numeric Input Handling
-
-Browsers automatically modify number inputs using
-
-- mouse wheel
-- arrow keys
-
-Custom input handling was implemented to prevent accidental value changes while still supporting decimal values and keyboard shortcuts.
 
 ---
 
@@ -729,9 +559,6 @@ Building EquiSplit provided practical experience with
 ✔ Layered Backend Design
 
 ✔ PostgreSQL Relational Data Model
-
-✔ Financial Precision using BigDecimal
-
 
 ---
 
@@ -765,7 +592,7 @@ git push origin feature/new-feature
 
 # Acknowledgements
 
-This project was developed as a practical exploration of modern full-stack software engineering concepts including
+This project was developed as a practical exploration of modern fullstack software engineering concepts including
 
 - Spring Boot
 - PostgreSQL
