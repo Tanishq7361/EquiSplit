@@ -35,11 +35,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div>
+    <div className="page-transition">
       <div className={styles.header}>
-        <p className={styles.eyebrow}>Get started</p>
         <h1 className={styles.title}>Create account</h1>
-        <p className={styles.subtitle}>Start splitting expenses with your groups.</p>
       </div>
 
       {error && <Alert variant="error" style={{ marginBottom: '1.25rem' }}>{error}</Alert>}

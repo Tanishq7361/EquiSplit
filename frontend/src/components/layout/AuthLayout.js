@@ -1,33 +1,29 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
+import EquiSplit3DLogo from '../common/EquiSplit3DLogo';
 import styles from './AuthLayout.module.css';
 
 export default function AuthLayout() {
+  const triggerEntrance = () => {
+    if (window.triggerEquiSplitSplash) {
+      window.triggerEquiSplitSplash();
+    }
+  };
+
   return (
     <div className={styles.layout}>
-      <div className={styles.brand}>
-        <div className={styles.brandGlow} />
-        <div className={styles.brandIcon}>⚖</div>
-        <h1 className={styles.brandTitle}>Equi<span>Split</span></h1>
-        <p className={styles.brandTagline}>
-          Track shared expenses, settle debts, and keep friendships intact.
-        </p>
-        <div className={styles.features}>
-          {[
-            ['◈', 'Organise expenses by group'],
-            ['⬡', 'Smart balance calculation'],
-            ['↔', 'One-tap settlements'],
-          ].map(([icon, text]) => (
-            <div key={text} className={styles.feature}>
-              <span className={styles.featureIcon}>{icon}</span>
-              <span>{text}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <div className={styles.ambientOrb1} />
+      <div className={styles.ambientOrb2} />
 
-      <div className={styles.formSide}>
-        <div className={styles.formBox}>
+      <div className={styles.container}>
+        <div className={styles.brandHeader} onClick={triggerEntrance} title="EquiSplit 3D">
+          <EquiSplit3DLogo size="lg" animated={true} interactive={true} glow={true} />
+          <div className={styles.brandName}>
+            Equi<span>Split</span>
+          </div>
+        </div>
+
+        <div className={styles.card}>
           <Outlet />
         </div>
       </div>

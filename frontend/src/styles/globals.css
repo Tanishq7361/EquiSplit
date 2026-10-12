@@ -281,6 +281,36 @@ img {
   animation: fadeIn var(--transition-base) both;
 }
 
+@keyframes pageReveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+.page-transition {
+  animation: pageReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Smooth Interactive Elements */
+button, input, select, textarea, a {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

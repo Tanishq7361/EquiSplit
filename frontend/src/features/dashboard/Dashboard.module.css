@@ -152,13 +152,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
   box-shadow: var(--shadow-sm);
 }
 
 .statCard:hover {
-  border-color: var(--color-border-light);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+  border-color: var(--color-accent-dim);
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.18);
 }
 
 .statTop {

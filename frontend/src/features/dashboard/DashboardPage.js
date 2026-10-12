@@ -184,13 +184,9 @@ export default function DashboardPage() {
           <div className={styles.heroContent}>
             <div className={styles.greetingRow}>
               <h1 className={styles.greeting}>
-                Welcome back, <span>{user?.name || 'there'}</span>
+                Welcome, <span>{user?.name || 'there'}</span>
               </h1>
-              <span className={styles.statusBadge}>Active Account</span>
             </div>
-            <p className={styles.subtitle}>
-              Manage shared balances, track group expenditures, and settle debts seamlessly.
-            </p>
           </div>
         </div>
 

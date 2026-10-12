@@ -4,9 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from "../../context/ThemeContext";
 import { Avatar } from '../common/Avatar';
 import UserProfileModal from '../profile/UserProfileModal';
+import EquiSplit3DLogo from '../common/EquiSplit3DLogo';
 import styles from './AppLayout.module.css';
 import { FiMoon, FiSun, FiUser, FiLogOut, FiGrid, FiUsers, FiEdit3 } from "react-icons/fi";
-import { FaBalanceScale } from "react-icons/fa";
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: <FiGrid /> },
@@ -47,11 +47,8 @@ export default function AppLayout() {
       {/* Sidebar */}
       <aside className={`${styles.sidebar} ${sidebarOpen ? styles.open : ''}`}>
         <NavLink to="/dashboard" className={styles.logo} onClick={closeSidebar}>
-          <div className={styles.logoIcon}><FaBalanceScale size={18}/></div>
-          <div className={styles.logoDetails}>
-            <span className={styles.logoText}>Equi<span>Split</span></span>
-            <span className={styles.logoTagline}>Expense Sharing SaaS</span>
-          </div>
+          <EquiSplit3DLogo size="sm" animated={true} interactive={true} glow={true} />
+          <span className={styles.logoText}>Equi<span>Split</span></span>
         </NavLink>
 
         <nav className={styles.nav} aria-label="Main navigation">

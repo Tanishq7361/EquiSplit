@@ -37,11 +37,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
+    <div className="page-transition">
       <div className={styles.header}>
-        <p className={styles.eyebrow}>Welcome back</p>
         <h1 className={styles.title}>Sign in</h1>
-        <p className={styles.subtitle}>Enter your credentials to continue.</p>
       </div>
 
       {error && <Alert variant="error" style={{ marginBottom: '1.25rem' }}>{error}</Alert>}
