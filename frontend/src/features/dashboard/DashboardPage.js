@@ -3,6 +3,7 @@ import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import groupsApi from '../../api/groupsApi';
 import dashboardApi from '../../api/dashboardApi';
+import expensesApi from '../../api/expensesApi';
 import Button from '../../components/common/Button';
 import { PageLoader } from '../../components/common/Spinner';
 import Alert from '../../components/common/Alert';
@@ -44,6 +45,7 @@ export default function DashboardPage() {
   const [dashboard, setDashboard] = useState(null);
   const [categoryData, setCategoryData] = useState([]);
   const [monthlyData, setMonthlyData] = useState([]);
+  const [netBalance, setNetBalance] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [profileModalOpen, setProfileModalOpen] = useState(false);
 
@@ -51,7 +53,6 @@ export default function DashboardPage() {
   const [pageSize, setPageSize] = useState(() => {
     return parseInt(localStorage.getItem('dashboardGroupPageSize') || '10', 10);
   });
-
 
   const openProfile = () => {
     if (outletContext?.openProfileModal) {
@@ -75,16 +76,43 @@ export default function DashboardPage() {
         dashboardApi.getMonthlySummary()
       ]);
 
-      setGroups(groupsRes.data || []);
+      const groupList = groupsRes.data || [];
+      setGroups(groupList);
       setDashboard(dashboardRes.data);
       setCategoryData(categoryRes.data || []);
       setMonthlyData(monthlyRes.data || []);
+
+      // Calculate user balance across all groups
+      if (groupList.length > 0) {
+        try {
+          const balanceResults = await Promise.all(
+            groupList.map(g => expensesApi.getBalances(g.id).catch(() => ({ data: [] })))
+          );
+          let totalBal = 0;
+          const myName = (user?.name || '').trim().toLowerCase();
+          const myEmail = (user?.email || '').trim().toLowerCase();
+
+          balanceResults.forEach(bRes => {
+            const list = bRes.data || [];
+            const userBal = list.find(item => {
+              const itemUserName = (item.userName || '').trim().toLowerCase();
+              return itemUserName === myName || itemUserName === myEmail;
+            });
+            if (userBal && userBal.balance != null) {
+              totalBal += Number(userBal.balance);
+            }
+          });
+          setNetBalance(totalBal);
+        } catch (balErr) {
+          console.warn('Failed to calculate overall group balance:', balErr);
+        }
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.name, user?.email]);
 
   useEffect(() => {
     loadDashboardData();
@@ -99,45 +127,41 @@ export default function DashboardPage() {
     );
   }, [groups, searchQuery]);
 
-  const formattedTotalAmount = useMemo(() => {
-    const raw = Number(dashboard?.totalExpenseAmount || 0);
-    return new Intl.NumberFormat('en-IN', {
+  const formattedNetBalance = useMemo(() => {
+    const isPositive = netBalance > 0.001;
+    const isNegative = netBalance < -0.001;
+    const absVal = Math.abs(netBalance);
+    const formatted = new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(raw);
-  }, [dashboard?.totalExpenseAmount]);
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(absVal);
+
+    if (isPositive) return `+${formatted}`;
+    if (isNegative) return `-${formatted}`;
+    return '₹0.00';
+  }, [netBalance]);
 
   if (loading) {
-
     return (
       <div className={styles.page}>
         {/* Hero Skeleton */}
         <div className={styles.heroCard}>
-          <div className={styles.heroMain}>
-            <Skeleton circle width="64px" height="64px" />
-            <div className={styles.heroContent} style={{ flex: 1 }}>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px' }}>
-                <Skeleton width="220px" height="26px" />
-                <Skeleton width="90px" height="20px" borderRadius="100px" />
+          <div className={styles.heroCardInner}>
+            <div style={{ display: 'flex', gap: '24px', alignItems: 'center', width: '100%' }}>
+              <Skeleton circle width="120px" height="120px" />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <Skeleton width="240px" height="32px" />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                  <Skeleton height="70px" borderRadius="10px" />
+                  <Skeleton height="70px" borderRadius="10px" />
+                  <Skeleton height="70px" borderRadius="10px" />
+                </div>
               </div>
-              <Skeleton width="70%" height="14px" />
             </div>
           </div>
-          <div className={styles.heroActions}>
-            <Skeleton width="110px" height="38px" borderRadius="var(--radius-md)" />
-          </div>
         </div>
-
-        {/* Stats Grid Skeleton */}
-        <div className={styles.statsGrid}>
-          {[...Array(4)].map((_, i) => (
-            <StatCardSkeleton key={i} />
-          ))}
-        </div>
-
-        {/* Analytics Skeleton */}
-        <AnalyticsSkeleton />
 
         {/* Groups Grid Skeleton */}
         <div className={styles.groupsSection}>
@@ -157,116 +181,121 @@ export default function DashboardPage() {
     );
   }
 
-
   return (
     <div className={styles.page}>
-      {/* Hero / Welcome Banner */}
+      {/* ── Main Overview Box with Roaming Laser Border ── */}
       <div className={styles.heroCard}>
-        <div className={styles.heroMain}>
-          <div
-            className={styles.heroAvatarWrapper}
-            onClick={openProfile}
-            role="button"
-            tabIndex={0}
-            title="Click to edit your name & photo"
-          >
-            <Avatar
-              name={user?.name || user?.email}
-              src={user?.profileImageUrl}
-              size="lg"
-              className={styles.heroAvatar}
-            />
-            <span className={styles.heroAvatarBadge}>
-              <FiEdit3 size={11} />
-            </span>
-          </div>
-
-          <div className={styles.heroContent}>
-            <div className={styles.greetingRow}>
-              <h1 className={styles.greeting}>
-                Welcome, <span>{user?.name || 'there'}</span>
-              </h1>
+        <div className={styles.heroCardInner}>
+          {/* Left Side: Huge PFP */}
+          <div className={styles.heroLeft}>
+            <div
+              className={styles.heroAvatarWrapper}
+              onClick={openProfile}
+              role="button"
+              tabIndex={0}
+              title="Click to edit profile photo & details"
+            >
+              <Avatar
+                name={user?.name || user?.email}
+                src={user?.profileImageUrl}
+                size="huge"
+                className={styles.hugeAvatar}
+              />
+              <span className={styles.heroAvatarBadge}>
+                <FiEdit3 size={15} />
+              </span>
             </div>
           </div>
-        </div>
 
-        <div className={styles.heroActions}>
-          <button
-            type="button"
-            className={styles.editProfileBtn}
-            onClick={openProfile}
-          >
-            <FiEdit3 size={14} />
-            <span>Edit Profile</span>
-          </button>
+          {/* Right Side: Name, Current Balance (+/-), No of groups, No of expenses */}
+          <div className={styles.heroRight}>
+            <div className={styles.heroUserHeader}>
+              <div>
+                <div className={styles.greetingTag}>Account Overview</div>
+                <h1 className={styles.userNameTitle}>{user?.name || 'My Account'}</h1>
+                <p className={styles.userEmailText}>{user?.email}</p>
+              </div>
 
-          <Button
-            size="sm"
-            variant="primary"
-            onClick={() => navigate('/groups/new')}
-          >
-            <FiPlus size={16} />
-            <span>New Group</span>
-          </Button>
+              <div className={styles.heroActions}>
+                <button
+                  type="button"
+                  className={styles.editProfileBtn}
+                  onClick={openProfile}
+                >
+                  <FiEdit3 size={14} />
+                  <span>Edit Profile</span>
+                </button>
+
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => navigate('/groups/new')}
+                >
+                  <FiPlus size={16} />
+                  <span>New Group</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Metrics Strip */}
+            <div className={styles.heroMetricsStrip}>
+              {/* Current Balance over all groups */}
+              <div
+                className={`${styles.heroMetricCard} ${
+                  netBalance > 0.001
+                    ? styles.positiveBalance
+                    : netBalance < -0.001
+                    ? styles.negativeBalance
+                    : styles.neutralBalance
+                }`}
+              >
+                <div className={styles.metricLabelRow}>
+                  <span className={styles.metricLabel}>Current Balance</span>
+                  <span className={styles.balanceStatusPill}>
+                    {netBalance > 0.001
+                      ? '+ve (Owed)'
+                      : netBalance < -0.001
+                      ? '-ve (You Owe)'
+                      : 'Settled'}
+                  </span>
+                </div>
+                <div className={styles.metricBigValue}>{formattedNetBalance}</div>
+                <span className={styles.metricSubtext}>Across all your groups</span>
+              </div>
+
+              {/* No of Groups */}
+              <div className={styles.heroMetricCard}>
+                <div className={styles.metricLabelRow}>
+                  <span className={styles.metricLabel}>No. of Groups</span>
+                  <div className={styles.metricIconCircle}>
+                    <FiUsers size={15} />
+                  </div>
+                </div>
+                <div className={styles.metricBigValue}>
+                  {dashboard?.totalGroups ?? groups.length}
+                </div>
+                <span className={styles.metricSubtext}>Shared groups joined</span>
+              </div>
+
+              {/* No of Expenses */}
+              <div className={styles.heroMetricCard}>
+                <div className={styles.metricLabelRow}>
+                  <span className={styles.metricLabel}>No. of Expenses</span>
+                  <div className={styles.metricIconCircle}>
+                    <FiFileText size={15} />
+                  </div>
+                </div>
+                <div className={styles.metricBigValue}>
+                  {dashboard?.totalExpenses ?? 0}
+                </div>
+                <span className={styles.metricSubtext}>Across all active groups</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {error && <Alert variant="error" className={styles.alert}>{error}</Alert>}
-
-      {/* Stats / Metric Overview */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <div className={styles.statTop}>
-            <span className={styles.statLabel}>Active Groups</span>
-            <div className={`${styles.statIconBadge} ${styles.iconBlue}`}>
-              <FiUsers size={18} />
-            </div>
-          </div>
-          <div className={styles.statValue}>{dashboard?.totalGroups ?? 0}</div>
-          <div className={styles.statFooter}>
-            <span>Shared groups joined</span>
-          </div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statTop}>
-            <span className={styles.statLabel}>Total Expenses</span>
-            <div className={`${styles.statIconBadge} ${styles.iconEmerald}`}>
-              <FiFileText size={18} />
-            </div>
-          </div>
-          <div className={styles.statValue}>{dashboard?.totalExpenses ?? 0}</div>
-          <div className={styles.statFooter}>
-            <span>Across all active groups</span>
-          </div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statTop}>
-            <span className={styles.statLabel}>Tracked Expenses</span>
-            <div className={`${styles.statIconBadge} ${styles.iconAmber}`}>
-              <FiDollarSign size={18} />
-            </div>
-          </div>
-          <div className={styles.statValue}>{formattedTotalAmount}</div>
-          <div className={styles.statFooter}>
-            <span>Cumulative group spend</span>
-          </div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statTop}>
-            <span className={styles.statLabel}>Settlements</span>
-            <div className={`${styles.statIconBadge} ${styles.iconPurple}`}>
-              <FiCheckCircle size={18} />
-            </div>
-          </div>
-          <div className={styles.statValue}>{dashboard?.totalSettlements ?? 0}</div>
-          <div className={styles.statFooter}>
-            <span>Completed settlements</span>
-          </div>
-        </div>
-      </div>
 
       {/* Visual Analytics */}
       {(categoryData.length > 0 || monthlyData.length > 0) && (

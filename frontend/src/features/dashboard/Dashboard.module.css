@@ -10,100 +10,196 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Hero Card ── */
+@keyframes laserRoam {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* ── Hero Card with Roaming Laser Border ── */
 .heroCard {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  position: relative;
   border-radius: var(--radius-xl);
-  padding: var(--space-6) var(--space-8);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-6);
-  box-shadow: var(--shadow-sm);
+  padding: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.55);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
-.heroMain {
-  display: flex;
-  align-items: center;
-  gap: var(--space-5);
-  flex: 1;
+.heroCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 44px -4px rgba(0, 0, 0, 0.65), 0 0 24px rgba(59, 130, 246, 0.2);
 }
 
+/* Roaming Laser Beam along Card Perimeter */
+.heroCard::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  aspect-ratio: 1 / 1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 260deg,
+    rgba(59, 130, 246, 0.4) 300deg,
+    #3b82f6 330deg,
+    #60a5fa 350deg,
+    #ffffff 360deg
+  );
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: laserRoam 4s linear infinite;
+  will-change: transform;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.heroCardInner {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, rgba(20, 24, 34, 0.96) 0%, rgba(14, 16, 24, 0.98) 100%);
+  border-radius: calc(var(--radius-xl) - 1.5px);
+  padding: var(--space-8);
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  overflow: hidden;
+  width: 100%;
+}
+
+.heroCardInner::after {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+/* Left Side: Huge PFP */
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Enlarged User Photo with Laser Roaming Ring */
 .heroAvatarWrapper {
   position: relative;
   cursor: pointer;
   flex-shrink: 0;
   border-radius: 50%;
-  transition: transform var(--transition-fast);
+  padding: 3.5px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.55);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.heroAvatarWrapper::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    transparent 270deg,
+    rgba(59, 130, 246, 0.35) 310deg,
+    rgba(96, 165, 250, 0.95) 345deg,
+    #ffffff 360deg
+  );
+  animation: laserRoam 3.5s linear infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .heroAvatarWrapper:hover {
-  transform: scale(1.04);
+  transform: scale(1.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 25px rgba(59, 130, 246, 0.35);
 }
 
-.heroAvatar {
-  border: 2px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
+.hugeAvatar {
+  position: relative;
+  z-index: 1;
+  border-radius: 50%;
+  display: block;
 }
 
 .heroAvatarBadge {
   position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 22px;
-  height: 22px;
+  bottom: 2px;
+  right: 2px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-full);
   background: var(--color-accent);
   color: white;
-  border: 2px solid var(--color-surface);
+  border: 2.5px solid var(--color-surface-solid);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow-sm);
+  z-index: 2;
+  transition: transform var(--transition-fast);
 }
 
-.heroContent {
+.heroAvatarWrapper:hover .heroAvatarBadge {
+  transform: scale(1.12);
+}
+
+/* Right Side: Header and Metrics */
+.heroRight {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-5);
+  min-width: 0;
 }
 
-.greetingRow {
+.heroUserHeader {
   display: flex;
-  align-items: center;
-  gap: var(--space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
   flex-wrap: wrap;
 }
 
-.greeting {
+.greetingTag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-accent-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.userNameTitle {
   font-family: var(--font-display);
-  font-size: var(--text-2xl);
+  font-size: var(--text-3xl);
   font-weight: 700;
   color: var(--color-text-primary);
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
-.greeting span {
-  color: var(--color-accent-text);
-}
-
-.statusBadge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 9px;
-  border-radius: var(--radius-full);
-  background: var(--color-success-dim);
-  color: var(--color-success);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  letter-spacing: 0.02em;
-}
-
-.subtitle {
-  color: var(--color-text-muted);
+.userEmailText {
   font-size: var(--text-sm);
-  max-width: 600px;
-  line-height: 1.5;
+  color: var(--color-text-muted);
+  margin-top: 2px;
 }
 
 .heroActions {
@@ -117,7 +213,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 7px 14px;
+  padding: 8px 16px;
   border-radius: var(--radius-md);
   background: var(--color-surface-2);
   border: 1px solid var(--color-border);
@@ -129,23 +225,132 @@
 }
 
 .editProfileBtn:hover {
-  background: var(--color-border);
+  background: var(--color-surface-3, var(--color-border));
   border-color: var(--color-border-light);
+  transform: translateY(-1px);
+}
+
+/* Metrics row on the right */
+.heroMetricsStrip {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.heroMetricCard {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.heroMetricCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-border-hover);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.heroMetricCard.positiveBalance {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, rgba(20, 24, 34, 0.9) 100%);
+}
+
+.heroMetricCard.negativeBalance {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.12) 0%, rgba(20, 24, 34, 0.9) 100%);
+}
+
+.heroMetricCard.neutralBalance {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.metricLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.metricLabel {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.balanceStatusPill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.positiveBalance .balanceStatusPill {
+  background: var(--color-success-dim);
+  color: var(--color-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.negativeBalance .balanceStatusPill {
+  background: var(--color-danger-dim);
+  color: var(--color-danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.neutralBalance .balanceStatusPill {
+  background: var(--color-accent-glow);
+  color: var(--color-accent-text);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.metricBigValue {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.1;
+  margin-top: 2px;
+}
+
+.positiveBalance .metricBigValue {
+  color: var(--color-success);
+}
+
+.negativeBalance .metricBigValue {
+  color: var(--color-danger);
+}
+
+.metricSubtext {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.metricIconCircle {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  color: var(--color-accent-text);
 }
 
 .alert {
   margin-bottom: 0;
 }
 
-/* ── Metric / Stats Grid ── */
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-4);
-}
-
 .statCard {
-  background: var(--color-surface);
+  background: linear-gradient(180deg, rgba(22, 25, 38, 0.85) 0%, rgba(14, 16, 26, 0.95) 100%);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
@@ -154,12 +359,27 @@
   gap: var(--space-2);
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
   box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  position: relative;
+  overflow: hidden;
+}
+
+.statCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  pointer-events: none;
 }
 
 .statCard:hover {
   transform: translateY(-4px);
-  border-color: var(--color-accent-dim);
-  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.18);
+  border-color: var(--color-border-hover);
+  box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.15);
 }
 
 .statTop {
@@ -438,35 +658,35 @@
 }
 
 /* ── Responsive adjustments ── */
-@media (max-width: 1024px) {
-  .statsGrid {
-    grid-template-columns: repeat(2, 1fr);
+@media (max-width: 960px) {
+  .heroCardInner {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-6);
+    padding: var(--space-6) var(--space-5);
   }
 
-  .chartsGrid {
+  .heroUserHeader {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .heroMetricsStrip {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .heroCard {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: var(--space-5);
-  }
-
-  .heroMain {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-3);
+    width: 100%;
   }
 
   .heroActions {
     width: 100%;
-    justify-content: flex-start;
+    justify-content: center;
   }
+}
 
-  .statsGrid {
+@media (max-width: 768px) {
+  .chartsGrid {
     grid-template-columns: 1fr;
   }
 

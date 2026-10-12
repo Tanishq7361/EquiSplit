@@ -28,12 +28,13 @@
 }
 
 /* Sizes */
-.xs  { width: 22px; height: 22px; font-size: 0.65rem; }
-.sm  { width: 30px; height: 30px; font-size: var(--text-xs); }
-.md  { width: 38px; height: 38px; font-size: var(--text-sm); }
-.lg  { width: 50px; height: 50px; font-size: var(--text-lg); }
-.xl  { width: 68px; height: 68px; font-size: var(--text-2xl); }
-.xxl { width: 88px; height: 88px; font-size: var(--text-3xl); }
+.xs  { width: 26px; height: 26px; font-size: 0.75rem; }
+.sm  { width: 36px; height: 36px; font-size: var(--text-xs); }
+.md  { width: 46px; height: 46px; font-size: var(--text-base); }
+.lg  { width: 64px; height: 64px; font-size: var(--text-xl); }
+.xl   { width: 84px; height: 84px; font-size: var(--text-2xl); }
+.xxl  { width: 108px; height: 108px; font-size: 2.25rem; }
+.huge { width: 124px; height: 124px; font-size: 2.75rem; }
 
 /* Color variants derived from initials - refined professional tones */
 .color0 { background: #2563eb; color: #eff6ff; }
