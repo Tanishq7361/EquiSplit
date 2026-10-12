@@ -6,12 +6,13 @@ import { validateRegister } from '../../utils/validators';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import Alert from '../../components/common/Alert';
+import GoogleLoginButton from '../../components/auth/GoogleLoginButton';
 import styles from './auth.module.css';
 
 const INITIAL = { name: '', email: '', password: '' };
 
 export default function RegisterPage() {
-  const { register, loading, error, clearError, isAuthenticated } = useAuth();
+  const { register, loginWithGoogle, loading, error, clearError, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,6 +26,12 @@ export default function RegisterPage() {
     clearError();
     const result = await register(vals);
     if (result.success) navigate('/login', { replace: true });
+  };
+
+  const onGoogleSuccess = async (credential) => {
+    clearError();
+    const result = await loginWithGoogle(credential);
+    if (result.success) navigate('/dashboard', { replace: true });
   };
 
   return (
@@ -72,9 +79,19 @@ export default function RegisterPage() {
           hint="Use at least 8 characters"
           autoComplete="new-password"
         />
-        <Button type="submit" fullWidth loading={loading} size="lg">
+        <Button type="submit" fullWidth loading={loading} loadingText="Creating account..." size="lg">
           Create account
         </Button>
+
+        <div className={styles.divider}>or</div>
+
+        <GoogleLoginButton
+          onSuccess={onGoogleSuccess}
+          onError={(msg) => console.error(msg)}
+          text="Sign up with Google"
+          isSignUp={true}
+          disabled={loading}
+        />
       </form>
 
       <p className={styles.footer}>

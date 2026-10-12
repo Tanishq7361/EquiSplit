@@ -1,0 +1,69 @@
+.googleButtonWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.googleBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background-color: #ffffff;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  min-height: 44px;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.googleBtn:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.googleBtn:active:not(:disabled) {
+  background-color: #f3f4f6;
+  transform: translateY(1px);
+}
+
+.googleBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.googleIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.googleHiddenGsi {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.001;
+  overflow: hidden;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.configNotice {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ef4444;
+  text-align: center;
+}

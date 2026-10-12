@@ -161,4 +161,50 @@ class UserServiceImplTest {
         verify(jwtService, never())
                 .generateToken(anyString());
     }
+
+    @Test
+    void getProfile_shouldReturnUser() {
+        User user = User.builder()
+                .id(1L)
+                .name("Alex Johnson")
+                .email("alex@test.com")
+                .profileImageUrl("https://images.example.com/avatar.jpg")
+                .build();
+
+        when(userRepository.findByEmail("alex@test.com"))
+                .thenReturn(java.util.Optional.of(user));
+
+        User result = userService.getProfile("alex@test.com");
+
+        assertNotNull(result);
+        assertEquals("Alex Johnson", result.getName());
+        assertEquals("https://images.example.com/avatar.jpg", result.getProfileImageUrl());
+    }
+
+    @Test
+    void updateProfile_shouldUpdateNameAndPhoto() {
+        User user = User.builder()
+                .id(1L)
+                .name("Alex Johnson")
+                .email("alex@test.com")
+                .profileImageUrl(null)
+                .build();
+
+        when(userRepository.findByEmail("alex@test.com"))
+                .thenReturn(java.util.Optional.of(user));
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        com.equisplit.dto.request.UpdateProfileRequest request = com.equisplit.dto.request.UpdateProfileRequest.builder()
+                .name("Alex Updated")
+                .profileImageUrl("data:image/png;base64,sample")
+                .build();
+
+        User updated = userService.updateProfile(request, "alex@test.com");
+
+        assertNotNull(updated);
+        assertEquals("Alex Updated", updated.getName());
+        assertEquals("data:image/png;base64,sample", updated.getProfileImageUrl());
+        verify(userRepository).save(any(User.class));
+    }
 }

@@ -6,12 +6,13 @@ import { validateLogin } from '../../utils/validators';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import Alert from '../../components/common/Alert';
+import GoogleLoginButton from '../../components/auth/GoogleLoginButton';
 import styles from './auth.module.css';
 
 const INITIAL = { email: '', password: '' };
 
 export default function LoginPage() {
-  const { login, loading, error, clearError, isAuthenticated } = useAuth();
+  const { login, loginWithGoogle, loading, error, clearError, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/dashboard';
@@ -26,6 +27,12 @@ export default function LoginPage() {
   const onSubmit = async (vals) => {
     clearError();
     const result = await login(vals);
+    if (result.success) navigate(from, { replace: true });
+  };
+
+  const onGoogleSuccess = async (credential) => {
+    clearError();
+    const result = await loginWithGoogle(credential);
     if (result.success) navigate(from, { replace: true });
   };
 
@@ -62,9 +69,18 @@ export default function LoginPage() {
           error={touched.password && errors.password}
           autoComplete="current-password"
         />
-        <Button type="submit" fullWidth loading={loading} size="lg">
+        <Button type="submit" fullWidth loading={loading} loadingText="Signing in..." size="lg">
           Sign in
         </Button>
+
+        <div className={styles.divider}>or</div>
+
+        <GoogleLoginButton
+          onSuccess={onGoogleSuccess}
+          onError={(msg) => console.error(msg)}
+          text="Continue with Google"
+          disabled={loading}
+        />
       </form>
 
       <p className={styles.footer}>

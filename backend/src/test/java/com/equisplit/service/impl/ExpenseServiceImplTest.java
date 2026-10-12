@@ -22,6 +22,10 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -204,20 +208,23 @@ class ExpenseServiceImplTest {
         when(groupMemberRepository.findByGroupAndUser(group, user))
                 .thenReturn(Optional.of(mock(GroupMember.class)));
 
-        when(expenseRepository.findByGroup(group))
-                .thenReturn(List.of(expense));
+        Pageable pageable = PageRequest.of(0, 20);
+        when(expenseRepository.findByGroupIdAndSearch(1L, null, pageable))
+                .thenReturn(new PageImpl<>(List.of(expense)));
 
-        List<ExpenseSummaryResponse> result =
+        Page<ExpenseSummaryResponse> result =
                 expenseService.getGroupExpenses(
                         1L,
+                        null,
+                        pageable,
                         "owner@test.com"
                 );
 
-        assertEquals(1, result.size());
+        assertEquals(1, result.getContent().size());
 
         assertEquals(
                 "Dinner",
-                result.getFirst().getDescription()
+                result.getContent().get(0).getDescription()
         );
     }
 }

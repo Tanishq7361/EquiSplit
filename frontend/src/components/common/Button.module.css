@@ -13,12 +13,16 @@
   white-space: nowrap;
   cursor: pointer;
   border: 1.5px solid transparent;
+  position: relative;
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
-  pointer-events: none;
+}
+
+.isLoading {
+  cursor: wait;
 }
 
 /* Variants */
@@ -82,10 +86,22 @@
 .spinner {
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 600ms linear infinite;
+  flex-shrink: 0;
+}
+
+.spinner_secondary,
+.spinner_ghost {
+  border-color: rgba(148, 163, 184, 0.3);
+  border-top-color: var(--color-text-primary);
+}
+
+.spinner_danger {
+  border-color: rgba(239, 68, 68, 0.3);
+  border-top-color: var(--color-danger);
 }
 
 @keyframes spin {

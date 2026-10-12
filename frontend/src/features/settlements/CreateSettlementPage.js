@@ -125,9 +125,10 @@ export default function CreateSettlementPage() {
             <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
               Cancel
             </Button>
-            <Button type="submit" loading={submitting}>
+            <Button type="submit" loading={submitting} loadingText="Recording settlement...">
               Record settlement
             </Button>
+
           </div>
         </form>
       </div>

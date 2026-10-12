@@ -33,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.equisplit.dto.response.DebtResponse;
 import com.equisplit.dto.request.UpdateExpenseRequest;
 import java.util.ArrayList;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -392,8 +394,10 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
 
         @Override
-        public List<ExpenseSummaryResponse> getGroupExpenses(
+        public Page<ExpenseSummaryResponse> getGroupExpenses(
                 Long groupId,
+                String search,
+                Pageable pageable,
                 String userEmail) {
 
         User user = userRepository.findByEmail(userEmail)
@@ -405,9 +409,11 @@ public class ExpenseServiceImpl implements ExpenseService {
         groupMemberRepository.findByGroupAndUser(group, user)
                 .orElseThrow(() -> new UnauthorizedActionException("You are not a member of this group"));
 
-        return expenseRepository.findByGroup(group)
-                .stream()
-                .map(expense -> {
+        String searchTrimmed = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
+
+        Page<Expense> expensePage = expenseRepository.findByGroupIdAndSearch(groupId, searchTrimmed, pageable);
+
+        return expensePage.map(expense -> {
 
                 List<ExpenseSplitResponse> splits =
                         expenseSplitRepository.findByExpense(expense)
@@ -430,8 +436,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                         .createdAt(expense.getCreatedAt())
                         .splits(splits)
                         .build();
-                })
-                .toList();
+                });
         }
 
         @Override

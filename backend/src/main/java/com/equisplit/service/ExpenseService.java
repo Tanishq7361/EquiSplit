@@ -12,6 +12,9 @@ import com.equisplit.dto.response.DebtResponse;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 public interface ExpenseService {
 
     ExpenseResponse createExpense(
@@ -25,8 +28,10 @@ public interface ExpenseService {
         String userEmail
     );
 
-    List<ExpenseSummaryResponse> getGroupExpenses(
+    Page<ExpenseSummaryResponse> getGroupExpenses(
         Long groupId,
+        String search,
+        Pageable pageable,
         String userEmail
     );
 

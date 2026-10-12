@@ -40,4 +40,10 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(userService.login(request));
     }
+
+    @PostMapping("/google")
+    public ResponseEntity<LoginResponse> googleLogin(
+            @Valid @RequestBody com.equisplit.dto.request.GoogleLoginRequest request) {
+        return ResponseEntity.ok(userService.loginWithGoogle(request));
+    }
 }

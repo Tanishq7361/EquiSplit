@@ -4,6 +4,8 @@ import com.equisplit.entity.Expense;
 import com.equisplit.entity.Group;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.equisplit.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
@@ -12,6 +14,18 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     
     boolean existsByGroupAndPaidBy(Group group, User user);
     List<Expense> findByGroup(Group group);
+    
+    @Query("""
+    SELECT e
+    FROM Expense e
+    WHERE e.group.id = :groupId
+      AND (:search IS NULL OR LOWER(e.description) LIKE LOWER(CONCAT('%', :search, '%')))
+    """)
+    Page<Expense> findByGroupIdAndSearch(
+            @Param("groupId") Long groupId,
+            @Param("search") String search,
+            Pageable pageable
+    );
     void deleteByGroup(Group group);
     List<Expense> findByPaidBy(User user);
 

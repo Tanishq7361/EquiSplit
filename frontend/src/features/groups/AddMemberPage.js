@@ -64,9 +64,10 @@ export default function AddMemberPage() {
             <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
               Cancel
             </Button>
-            <Button type="submit" loading={loading}>
+            <Button type="submit" loading={loading} loadingText="Adding member...">
               Add member
             </Button>
+
           </div>
         </form>
       </div>

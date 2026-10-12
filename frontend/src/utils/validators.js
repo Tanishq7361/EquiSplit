@@ -89,3 +89,21 @@ export function validateMember(values) {
     email: validators.email(values.email),
   };
 }
+
+export function validateUsername(values) {
+  const newUsername = values.newUsername;
+  let error = '';
+  if (!newUsername?.toString().trim()) {
+    error = 'Username is required';
+  } else {
+    const trimmed = newUsername.replace(/^\s+/, '');
+    if (trimmed.length < 2) {
+      error = 'Username must be between 2 and 30 characters';
+    } else if (trimmed.length > 30) {
+      error = 'Username must be between 2 and 30 characters';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
+      error = 'Username must contain only letters, numbers and underscores';
+    }
+  }
+  return { newUsername: error };
+}

@@ -31,6 +31,8 @@ import CreateSettlementPage from './features/settlements/CreateSettlementPage';
 import { ServerLoaderProvider } from "./context/ServerLoaderContext";
 
 import EditExpensePage from './features/expenses/EditExpensePage';
+import SettingsPage from './features/profile/SettingsPage';
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -60,7 +62,9 @@ export default function App() {
               <Route path="/groups/:groupId/settlements/new"              element={<CreateSettlementPage />} />
               <Route path="/groups/:groupId/expenses/:expenseId/edit"     element={<EditExpensePage />} />
               <Route path="/groups/:groupId/edit"                         element={<EditGroupPage />} />
+              <Route path="/settings"                                     element={<Navigate to="/dashboard" replace />} />
             </Route>
+
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -16,6 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import com.equisplit.dto.response.DebtResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 
 @RestController
 @RequestMapping("/api/v1/groups/{groupId}/expenses")
@@ -45,9 +49,19 @@ public class ExpenseController {
         }
 
         @GetMapping
-        public ResponseEntity<List<ExpenseSummaryResponse>> getGroupExpenses(@PathVariable Long groupId,
+        public ResponseEntity<Page<ExpenseSummaryResponse>> getGroupExpenses(
+                @PathVariable Long groupId,
+                @RequestParam(required = false) String search,
+                @PageableDefault(size = 20, sort = {"createdAt", "id"}, direction = Sort.Direction.DESC) Pageable pageable,
                 Authentication authentication) {
-                return ResponseEntity.ok(expenseService.getGroupExpenses(groupId, authentication.getName()));
+                return ResponseEntity.ok(
+                        expenseService.getGroupExpenses(
+                                groupId,
+                                search,
+                                pageable,
+                                authentication.getName()
+                        )
+                );
         }
 
         @GetMapping("/outstanding")

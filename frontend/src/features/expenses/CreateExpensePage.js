@@ -305,9 +305,10 @@ export default function CreateExpensePage() {
             <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
               Cancel
             </Button>
-            <Button type="submit" loading={submitting}>
+            <Button type="submit" loading={submitting} loadingText="Adding expense...">
               Add expense
             </Button>
+
           </div>
         </form>
       </div>

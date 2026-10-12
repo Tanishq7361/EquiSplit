@@ -526,3 +526,167 @@
     font-size:1rem;
 }
 }
+
+/* Skeletons */
+.skeletonItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  opacity: 0.6;
+}
+
+.skeletonIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-border-light);
+  animation: pulse 1.5s infinite;
+}
+
+.skeletonInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeletonLineShort {
+  width: 30%;
+  height: 12px;
+  background: var(--color-border-light);
+  border-radius: var(--radius-sm);
+  animation: pulse 1.5s infinite;
+}
+
+.skeletonLineLong {
+  width: 60%;
+  height: 8px;
+  background: var(--color-border);
+  border-radius: var(--radius-sm);
+  animation: pulse 1.5s infinite;
+}
+
+.skeletonAmount {
+  width: 60px;
+  height: 16px;
+  background: var(--color-border-light);
+  border-radius: var(--radius-sm);
+  animation: pulse 1.5s infinite;
+}
+
+/* Search Bar */
+.searchFilterBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.searchWrapper {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  transition: all var(--transition-fast);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+/* Pagination Bar */
+.paginationBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1.5px solid var(--color-border);
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.paginationInfo {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pageSizeWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pageSizeSelect {
+  padding: 6px 12px;
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.pageSizeSelect:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.totalCountLabel {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+  display: block;
+}
+
+.editBtn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.editBtn:hover {
+  background-color: var(--color-surface-2);
+}

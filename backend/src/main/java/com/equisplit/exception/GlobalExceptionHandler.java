@@ -50,6 +50,30 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflict(
+            ConflictException ex) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.builder()
+                                .message(ex.getMessage())
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(
+            IllegalArgumentException ex) {
+
+        return ResponseEntity.badRequest()
+                .body(
+                        ErrorResponse.builder()
+                                .message(ex.getMessage())
+                                .build()
+                );
+    }
+
     @ExceptionHandler(Exception.class)
         public ResponseEntity<ErrorResponse> handleGeneric(
                 Exception ex) {

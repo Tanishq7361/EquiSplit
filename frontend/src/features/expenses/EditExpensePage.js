@@ -349,9 +349,10 @@ export default function EditExpensePage() {
             <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
               Cancel
             </Button>
-            <Button type="submit" loading={submitting}>
+            <Button type="submit" loading={submitting} loadingText="Saving changes...">
               Save Changes
             </Button>
+
           </div>
         </form>
       </div>

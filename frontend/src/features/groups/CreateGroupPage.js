@@ -67,9 +67,10 @@ export default function CreateGroupPage() {
             <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
               Cancel
             </Button>
-            <Button type="submit" loading={loading}>
+            <Button type="submit" loading={loading} loadingText="Creating group...">
               Create group
             </Button>
+
           </div>
         </form>
       </div>

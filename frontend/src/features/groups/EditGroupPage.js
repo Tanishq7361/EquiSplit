@@ -103,9 +103,10 @@ export default function EditGroupPage() {
             <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
               Cancel
             </Button>
-            <Button type="submit" loading={saving}>
+            <Button type="submit" loading={saving} loadingText="Saving changes...">
               Save Changes
             </Button>
+
           </div>
         </form>
       </div>
