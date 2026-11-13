@@ -5,6 +5,10 @@ import com.equisplit.dto.response.SettlementResponse;
 import com.equisplit.service.SettlementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +45,21 @@ public class SettlementController {
                 return ResponseEntity.ok(
                         settlementService.getGroupSettlements(
                                 groupId,
+                                authentication.getName()
+                        )
+                );
+        }
+
+        @GetMapping("/page")
+        public ResponseEntity<Page<SettlementSummaryResponse>> getGroupSettlementsPaged(
+                @PathVariable Long groupId,
+                @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+                Authentication authentication) {
+
+                return ResponseEntity.ok(
+                        settlementService.getGroupSettlements(
+                                groupId,
+                                pageable,
                                 authentication.getName()
                         )
                 );

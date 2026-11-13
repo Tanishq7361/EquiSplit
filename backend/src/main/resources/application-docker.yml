@@ -8,5 +8,13 @@ spring:
     hibernate:
       ddl-auto: validate
 
+  cache:
+    type: redis
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+
 server:
   port: 8080

@@ -40,4 +40,7 @@ public class Expense {
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    @Version
+    private Long version;
 }

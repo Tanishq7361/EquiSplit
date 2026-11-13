@@ -9,7 +9,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DashboardResponse {
+public class DashboardResponse implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private long totalGroups;
 

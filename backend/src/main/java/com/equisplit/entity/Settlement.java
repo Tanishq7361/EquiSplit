@@ -39,4 +39,7 @@ public class Settlement {
 
     @Column(length = 255)
     private String description;
+
+    @Version
+    private Long version;
 }

@@ -44,6 +44,9 @@ class GroupServiceImplTest {
     @Mock
     private ExpenseRepository expenseRepository;
 
+    @Mock
+    private com.equisplit.service.AuditLogService auditLogService;
+
     @InjectMocks
     private GroupServiceImpl groupService;
 

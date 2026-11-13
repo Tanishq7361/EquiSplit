@@ -9,7 +9,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MonthlyExpenseResponse {
+public class MonthlyExpenseResponse implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String month;
 

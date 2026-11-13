@@ -11,7 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserProfileResponse {
+public class UserProfileResponse implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     private String name;

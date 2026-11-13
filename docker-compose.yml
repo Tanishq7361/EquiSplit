@@ -35,6 +35,7 @@ services:
 
     depends_on:
       - postgres
+      - redis
 
     environment:
       SPRING_PROFILES_ACTIVE: docker

@@ -49,6 +49,9 @@ class SettlementServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.equisplit.service.AuditLogService auditLogService;
+
     @InjectMocks
     private SettlementServiceImpl settlementService;
 
@@ -75,10 +78,11 @@ class SettlementServiceImplTest {
         CreateSettlementRequest request =
                 new CreateSettlementRequest();
 
+        request.setPayerId(1L);
         request.setReceiverId(2L);
         request.setAmount(BigDecimal.valueOf(500));
 
-        when(userRepository.findByEmail("owner@test.com"))
+        when(userRepository.findById(1L))
                 .thenReturn(Optional.of(payer));
 
         when(groupRepository.findById(1L))
@@ -126,6 +130,7 @@ class SettlementServiceImplTest {
     void createSettlement_shouldThrowWhenUserNotMember() {
 
         User payer = User.builder()
+                .id(1L)
                 .email("owner@test.com")
                 .build();
 
@@ -136,10 +141,11 @@ class SettlementServiceImplTest {
         CreateSettlementRequest request =
                 new CreateSettlementRequest();
 
+        request.setPayerId(1L);
         request.setReceiverId(2L);
         request.setAmount(BigDecimal.valueOf(500));
 
-        when(userRepository.findByEmail("owner@test.com"))
+        when(userRepository.findById(1L))
                 .thenReturn(Optional.of(payer));
 
         when(groupRepository.findById(1L))

@@ -18,6 +18,11 @@ import com.equisplit.dto.response.SettlementSummaryResponse;
 import java.util.List;
 import java.time.OffsetDateTime;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @RequiredArgsConstructor
 public class SettlementServiceImpl implements SettlementService {
@@ -26,8 +31,11 @@ public class SettlementServiceImpl implements SettlementService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
+    private final com.equisplit.service.AuditLogService auditLogService;
 
         @Override
+        @Transactional
+        @CacheEvict(value = {"dashboardData", "categorySummary", "monthlySummary"}, allEntries = true)
         public SettlementResponse createSettlement(
             Long groupId,
             CreateSettlementRequest request,
@@ -61,6 +69,9 @@ public class SettlementServiceImpl implements SettlementService {
                 .build();
 
         Settlement savedSettlement = settlementRepository.save(settlement);
+
+        auditLogService.logEvent("CREATE_SETTLEMENT", "SETTLEMENT", savedSettlement.getId(), groupId, userEmail,
+                "Settled " + savedSettlement.getAmount() + " from " + payer.getName() + " to " + receiver.getName());
 
         return SettlementResponse.builder()
                 .id(savedSettlement.getId())
@@ -101,6 +112,35 @@ public class SettlementServiceImpl implements SettlementService {
         }
 
         @Override
+        public Page<SettlementSummaryResponse> getGroupSettlements(
+                Long groupId,
+                Pageable pageable,
+                String userEmail) {
+
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
+
+        groupMemberRepository.findByGroupAndUser(group, currentUser)
+                .orElseThrow(() ->
+                        new UnauthorizedActionException("You are not a member of this group"));
+
+        return settlementRepository.findByGroupOrderByCreatedAtDesc(group, pageable)
+                .map(settlement -> SettlementSummaryResponse.builder()
+                        .id(settlement.getId())
+                        .payerName(settlement.getPayer().getName())
+                        .receiverName(settlement.getReceiver().getName())
+                        .amount(settlement.getAmount())
+                        .createdAt(settlement.getCreatedAt())
+                        .description(settlement.getDescription())
+                        .build());
+        }
+
+        @Override
+        @Transactional
+        @CacheEvict(value = {"dashboardData", "categorySummary", "monthlySummary"}, allEntries = true)
         public void deleteSettlement(
                 Long groupId,
                 Long settlementId,
@@ -128,5 +168,8 @@ public class SettlementServiceImpl implements SettlementService {
                                 ));
 
         settlementRepository.delete(settlement);
+
+        auditLogService.logEvent("DELETE_SETTLEMENT", "SETTLEMENT", settlementId, groupId, userEmail,
+                "Deleted settlement of " + settlement.getAmount());
         }
 }

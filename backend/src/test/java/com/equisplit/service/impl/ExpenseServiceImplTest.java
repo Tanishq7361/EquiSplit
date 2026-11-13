@@ -67,6 +67,9 @@ class ExpenseServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.equisplit.service.AuditLogService auditLogService;
+
     @InjectMocks
     private ExpenseServiceImpl expenseService;
 
@@ -87,9 +90,12 @@ class ExpenseServiceImplTest {
         CreateExpenseRequest request =
                 new CreateExpenseRequest();
 
+        request.setPaidByUserId(1L);
         request.setAmount(BigDecimal.valueOf(1000));
         request.setCategory("FOOD");
         request.setDescription("Dinner");
+        request.setSplitType("EQUAL");
+        request.setParticipantIds(List.of(1L, 2L));
 
         GroupMember member1 = GroupMember.builder()
                 .user(user)
@@ -106,7 +112,7 @@ class ExpenseServiceImplTest {
                 .group(group)
                 .build();
 
-        when(userRepository.findByEmail("owner@test.com"))
+        when(userRepository.findById(1L))
                 .thenReturn(Optional.of(user));
 
         when(groupRepository.findById(1L))
@@ -146,6 +152,7 @@ class ExpenseServiceImplTest {
     void createExpense_shouldThrowWhenUserNotMember() {
 
         User user = User.builder()
+                .id(1L)
                 .email("owner@test.com")
                 .build();
 
@@ -156,9 +163,12 @@ class ExpenseServiceImplTest {
         CreateExpenseRequest request =
                 new CreateExpenseRequest();
 
+        request.setPaidByUserId(1L);
         request.setAmount(BigDecimal.valueOf(1000));
+        request.setSplitType("EQUAL");
+        request.setParticipantIds(List.of(1L));
 
-        when(userRepository.findByEmail("owner@test.com"))
+        when(userRepository.findById(1L))
                 .thenReturn(Optional.of(user));
 
         when(groupRepository.findById(1L))

@@ -62,6 +62,19 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler({
+            org.springframework.dao.OptimisticLockingFailureException.class,
+            jakarta.persistence.OptimisticLockException.class
+    })
+    public ResponseEntity<ErrorResponse> handleOptimisticLocking(Exception ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.builder()
+                                .message("Conflict detected: This record was modified by another transaction. Please refresh and try again.")
+                                .build()
+                );
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(
             IllegalArgumentException ex) {

@@ -17,10 +17,13 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 
-  # data:
-  #   redis:
-  #     host: localhost
-  #     port: 6379
+  cache:
+    type: ${SPRING_CACHE_TYPE:redis}
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
 
 server:
   port: ${PORT:8080}

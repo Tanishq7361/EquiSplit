@@ -14,6 +14,8 @@ import com.equisplit.repository.GroupRepository;
 import com.equisplit.repository.UserRepository;
 import com.equisplit.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.equisplit.entity.ExpenseSplit;
 import com.equisplit.repository.ExpenseSplitRepository;
@@ -46,9 +48,11 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
+    private final com.equisplit.service.AuditLogService auditLogService;
 
         @Override
         @Transactional
+        @CacheEvict(value = {"dashboardData", "categorySummary", "monthlySummary"}, allEntries = true)
         public ExpenseResponse createExpense(
                 Long groupId,
                 CreateExpenseRequest request,
@@ -201,6 +205,9 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
         
 
+        auditLogService.logEvent("CREATE_EXPENSE", "EXPENSE", savedExpense.getId(), groupId, userEmail,
+                "Created expense of " + savedExpense.getAmount() + " in category " + savedExpense.getCategory());
+
         return ExpenseResponse.builder()
                 .id(savedExpense.getId())
                 .amount(savedExpense.getAmount())
@@ -214,6 +221,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         @Override
         @Transactional
+        @CacheEvict(value = {"dashboardData", "categorySummary", "monthlySummary"}, allEntries = true)
         public ExpenseResponse updateExpense(
                 Long groupId,
                 Long expenseId,
@@ -254,6 +262,9 @@ public class ExpenseServiceImpl implements ExpenseService {
         expenseSplitRepository.flush();
 
         createExpenseSplits(expense, request, group);
+
+        auditLogService.logEvent("UPDATE_EXPENSE", "EXPENSE", expense.getId(), groupId, userEmail,
+                "Updated expense amount to " + expense.getAmount() + " in category " + expense.getCategory());
 
         return ExpenseResponse.builder()
                 .id(expense.getId())
@@ -470,6 +481,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         @Override
         @Transactional
+        @CacheEvict(value = {"dashboardData", "categorySummary", "monthlySummary"}, allEntries = true)
         public void deleteExpense(
                 Long groupId,
                 Long expenseId,
@@ -490,6 +502,9 @@ public class ExpenseServiceImpl implements ExpenseService {
         expenseSplitRepository.deleteAll(expenseSplitRepository.findByExpense(expense));
 
         expenseRepository.delete(expense);
+
+        auditLogService.logEvent("DELETE_EXPENSE", "EXPENSE", expenseId, groupId, userEmail,
+                "Deleted expense of " + expense.getAmount() + " (" + expense.getDescription() + ")");
         }
 
         @Override
@@ -690,6 +705,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
 
         @Override
+        @Cacheable(value = "monthlySummary", key = "#email")
         public List<MonthlyExpenseResponse>
         getMonthlyExpenseSummary(
                 String email

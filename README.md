@@ -66,14 +66,16 @@ React-->>User: Dashboard Updated
 
 | Category | Features |
 |-----------|----------|
-| Authentication | JWT Login • Registration |
+| Authentication | JWT Login • Registration • Google OAuth 2.0 |
 | Groups | Create Groups • Edit Groups • Delete Groups |
 | Members | Add Members • Remove Members |
 | Expenses | Create • Edit • Delete Expenses |
 | Split Types | Equal • Exact Amount • Percentage |
-| Settlement | Record Settlements |
+| Settlement | Record Settlements • Min Cash Flow Algorithm |
 | Dashboard | Total Groups • Total Expenses • Expense Analytics |
-| Security | JWT Authentication |
+| Security & Concurrency | JWT Authentication • Optimistic Concurrency Control (@Version) |
+| Performance & Reliability | Redis Caching • Paginated Data Retrieval • Audit Logging |
+| CI/CD & Testing | JUnit • Testcontainers • GitHub Actions Pipelines |
 
 ---
 

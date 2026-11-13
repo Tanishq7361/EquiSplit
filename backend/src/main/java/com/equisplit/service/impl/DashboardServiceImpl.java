@@ -1,4 +1,5 @@
 package com.equisplit.service.impl;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.equisplit.dto.response.DashboardResponse;
@@ -25,6 +26,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final SettlementRepository settlementRepository;
 
         @Override
+        @Cacheable(value = "dashboardData", key = "#userEmail")
         public DashboardResponse getDashboard(String userEmail) {
 
                 User user = userRepository.findByEmail(userEmail)
@@ -58,6 +60,7 @@ public class DashboardServiceImpl implements DashboardService {
         }
 
         @Override
+        @Cacheable(value = "categorySummary", key = "#userEmail")
         public List<CategoryExpenseResponse> getOverallCategorySummary(String userEmail) {
                 User user = userRepository.findByEmail(userEmail)
                         .orElseThrow(() -> new ResourceNotFoundException("User not found"));

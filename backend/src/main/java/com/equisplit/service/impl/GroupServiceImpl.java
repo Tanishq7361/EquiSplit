@@ -37,6 +37,7 @@ public class GroupServiceImpl implements GroupService {
         private final ExpenseRepository expenseRepository;
         private final SettlementRepository settlementRepository;
         private final ExpenseSplitRepository expenseSplitRepository;
+        private final com.equisplit.service.AuditLogService auditLogService;
 
         @Override
         public GroupResponse createGroup(CreateGroupRequest request, String userEmail) {
@@ -61,6 +62,9 @@ public class GroupServiceImpl implements GroupService {
                         .build();
 
                 groupMemberRepository.save(member);
+
+                auditLogService.logEvent("CREATE_GROUP", "GROUP", savedGroup.getId(), savedGroup.getId(), userEmail,
+                        "Created group " + savedGroup.getName());
 
                 return GroupResponse.builder()
                         .id(savedGroup.getId())
@@ -130,6 +134,9 @@ public class GroupServiceImpl implements GroupService {
                         .build();
 
                 groupMemberRepository.save(newMember);
+
+                auditLogService.logEvent("ADD_MEMBER", "MEMBER", userToAdd.getId(), groupId, userEmail,
+                        "Added member " + userToAdd.getName() + " (" + userToAdd.getEmail() + ")");
         }
 
         @Override
@@ -224,6 +231,9 @@ public class GroupServiceImpl implements GroupService {
                 }
 
                 groupMemberRepository.deleteByGroupAndUser(group, memberToRemove);
+
+                auditLogService.logEvent("REMOVE_MEMBER", "MEMBER", memberToRemove.getId(), groupId, userEmail,
+                        "Removed member " + memberToRemove.getName());
         }
 
         @Override
@@ -254,6 +264,9 @@ public class GroupServiceImpl implements GroupService {
                 groupMemberRepository.deleteByGroup(group);
 
                 groupRepository.delete(group);
+
+                auditLogService.logEvent("DELETE_GROUP", "GROUP", groupId, groupId, userEmail,
+                        "Deleted group " + group.getName());
         }
 
         @Override
@@ -273,6 +286,9 @@ public class GroupServiceImpl implements GroupService {
                 group.setDescription(request.getDescription());
 
                 Group updated = groupRepository.save(group);
+
+                auditLogService.logEvent("UPDATE_GROUP", "GROUP", updated.getId(), groupId, userEmail,
+                        "Updated group name to " + updated.getName());
 
                 return GroupResponse.builder()
                         .id(updated.getId())
